@@ -1,0 +1,70 @@
+plugins {
+    id 'base'
+    id 'org.asciidoctor.jvm.convert'
+    id 'com.platformlib.gradle-wrapper' version '0.2.1'
+}
+
+version = project.findProperty('buildVersion') ?: '1.0-SNAPSHOT'
+
+asciidoctorj {
+    attributes 'version-label': project.version
+}
+
+asciidoctor {
+    sources {
+        include '**/*.adoc'
+    }
+}
+
+def fileName = 'license-management-gradle-plugin.adoc'
+
+task prepareAdocCopy {
+    doLast {
+        def originalAdocFile = file("src/docs/asciidoc/${fileName}")
+        def copyAdocFile = file("build/docs/asciidoc/${fileName}")
+
+        copyAdocFile.parentFile.mkdirs()
+        copyAdocFile.text = originalAdocFile.text
+    }
+}
+
+task replacePlaceholders {
+    dependsOn prepareAdocCopy
+    doLast {
+        def adocFile = file("build/docs/asciidoc/${fileName}")
+        def content = adocFile.text
+
+        def properties = [
+                LICENSE_CONTROL_PAGE_URL: project.findProperty('LICENSE_CONTROL_PAGE_URL') ?: ''
+        ]
+
+        properties.each { key, value ->
+            content = content.replace("\${$key}", value)
+        }
+
+        adocFile.write(content)
+    }
+}
+
+task publishToWiki(type: com.platformlib.plugins.gradle.wrapper.task.DockerTask) {
+    dependsOn replacePlaceholders
+    image = "${project['docker.registry']}/confluencepublisher/confluence-publisher:0.14.0"
+    dockerOptions = ['--network', 'host']
+    bindMounts = ["${file('build/docs/asciidoc')}:/var/asciidoc-root-folder"]
+    env = ["ROOT_CONFLUENCE_URL": project.findProperty("WIKI_URL"),
+         "SKIP_SSL_VERIFICATION":"true",
+         "MAX_REQUESTS_PER_SECOND":"10",
+         "USERNAME": WIKI_USERNAME,
+         "PASSWORD": WIKI_PASSWORD,
+         "SPACE_KEY":"RD",
+         "ANCESTOR_ID": project.findProperty("LICENSE_MANAGEMENT_GRADLE_PLUGIN_PAGE_ID") ?: "XXXXXXX",
+         "PUBLISHING_STRATEGY":"REPLACE_ANCESTOR",
+         "ORPHAN_REMOVAL_STRATEGY":"KEEP_ORPHANS",
+         "NOTIFY_WATCHERS":"false",
+         "ATTRIBUTES":"{\"version-label\": \"$version\"}",
+         "PUBLISHING_STRATEGY": "REPLACE_ANCESTOR",
+         "CONVERT_ONLY":"false"
+    ]
+}
+
+

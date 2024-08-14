@@ -1,0 +1,34 @@
+plugins {
+    id 'org.octopusden.octopus.license-management'
+}
+
+project.group = 'org.octopusden.octopus.spartak'
+
+configurations {
+    sshd
+    ibm
+}
+
+dependencies {
+    sshd group: 'org.apache.sshd', name: 'sshd-core', version: '2.6.0'
+    ibm 'com.ibm:com.ibm.ws.sib.client.thin.jms:7.0.0'
+    ibm 'com.ibm.mq:mq:7.0.1.6'
+}
+
+task zipDistributive(type:Zip) {
+    archiveName     "ibm-module.zip"
+    destinationDir file('build/distr')
+    from configurations.ibm
+    from configurations.sshd
+    from (processLicenses) {
+        into 'licenses'
+    }
+}
+
+task assemble {
+    dependsOn zipDistributive
+}
+
+task build {
+    dependsOn assemble
+}

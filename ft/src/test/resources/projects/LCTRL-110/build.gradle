@@ -1,0 +1,12 @@
+plugins {
+    id 'org.octopusden.octopus.license-management'
+    id 'java-library'
+}
+
+project.group = 'org.octopusden.octopus.zenit'
+
+dependencies {
+    api ("com.github.ben-manes.caffeine:caffeine:2.9.0")
+}
+
+assemble.dependsOn processLicensedDependencies

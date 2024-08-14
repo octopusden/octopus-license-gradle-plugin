@@ -1,0 +1,20 @@
+plugins {
+    id 'org.octopusden.octopus.license-management'
+}
+
+task zipDistributive(type: Zip) {
+    archiveName "node-module2.zip"
+    destinationDir file('build/distr')
+    from(processNpmLicenses) {
+        into 'licenses'
+    }
+}
+
+task assemble {
+    dependsOn zipDistributive
+}
+
+task build {
+    dependsOn assemble
+}
+

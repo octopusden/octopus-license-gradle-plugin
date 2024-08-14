@@ -1,0 +1,7 @@
+pluginManagement {
+    plugins {
+        id 'org.jetbrains.kotlin.jvm' version settings['kotlin.version']
+    }
+}
+
+rootProject.name = 'license-gradle-plugin-ft'

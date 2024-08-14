@@ -1,0 +1,6 @@
+pluginManagement {
+    plugins {
+        id 'org.asciidoctor.jvm.convert'  version settings['asciidoctor-plugin.version']
+    }
+}
+rootProject.name = 'license-management-gradle-plugin-docs'

@@ -1,0 +1,37 @@
+plugins {
+    id 'base'
+    id 'org.octopusden.octopus-release-management'
+    id 'maven-publish'
+}
+
+version = '1.1'
+project.group = 'org.octopusden.octopus.zenit'
+
+configurations {
+    deps
+}
+
+dependencies {
+    deps "org.octopusden.octopus.releng:versions-api:2.0.8"
+}
+
+task zipDistributive(type:Zip) {
+    archiveName     "single-module.zip"
+    destinationDir file('build/distr')
+    from configurations.deps
+}
+
+assemble {
+    dependsOn zipDistributive
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            artifact zipDistributive
+            pom {
+                declareDependencies(configurations.deps)
+            }
+        }
+    }
+}

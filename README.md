@@ -1,0 +1,2 @@
+# license-gradle-plugin
+

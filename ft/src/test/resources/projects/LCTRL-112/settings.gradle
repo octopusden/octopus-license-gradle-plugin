@@ -1,0 +1,10 @@
+//
+pluginManagement {
+    plugins {
+        id 'org.octopusden.octopus.license-management' version settings['license-management.version']
+    }
+}
+rootProject.name='license-test'
+
+include ':module-1'
+include ':module-2'

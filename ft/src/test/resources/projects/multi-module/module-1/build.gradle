@@ -1,0 +1,13 @@
+configurations {
+    mockito
+}
+
+dependencies {
+    mockito group: 'org.mockito', name: 'mockito-core', version: '3.8.0'
+}
+
+task zipDistributive(type:Zip) {
+    archiveName     "module1.zip"
+    destinationDir file('build/distr')
+    from configurations.mockito
+}

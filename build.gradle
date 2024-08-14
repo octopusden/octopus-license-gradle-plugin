@@ -1,0 +1,50 @@
+//
+plugins {
+    id 'org.octopusden.octopus-release-management'
+    id 'groovy'
+    id 'java-gradle-plugin'
+}
+
+group = 'org.octopusden.octopus'
+description "License gradle plugin"
+
+dependencies {
+    implementation "com.github.node-gradle:gradle-node-plugin:${project.'gradle-node-plugin.version'}"
+}
+
+gradlePlugin {
+    plugins {
+        LicenseGradlePlugin {
+            id = 'org.octopusden.octopus.license-management'
+            implementationClass = 'org.octopusden.octopus.license.management.plugins.gradle.LicenseGradlePlugin'
+        }
+    }
+}
+
+sourceSets {
+    main {
+        java { srcDirs = [] }    // no source dirs for the java compiler
+        groovy { srcDirs = ["src/main/groovy", "src/main/java"] }  // compile   everything in src/ with groovy
+    }
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+java{
+    withSourcesJar()
+}
+
+dependencies {
+    api group: 'com.platformlib', name: 'platformlib-process-local', version: project['platformlib-process.version']
+}
+
+apply plugin: 'maven-publish'
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId 'license-gradle-plugin'
+        }
+    }
+}

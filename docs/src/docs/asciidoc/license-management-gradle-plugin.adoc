@@ -1,0 +1,218 @@
+= License management gradle plugin
+License management gradle plugin
+v: New hope
+:toc:
+:toclevels: 4
+:version-label: 1.0-SNAPSHOT
+
+== Automated License Control
+
+To meet ${LICENSE_CONTROL_PAGE_URL}[3rd party License Control Requirements] the _org.octopusden.octopus.license-management_ plugin must be used.
+
+=== The License plugins DSL
+
+To support Escrow and Continues Integration processes the project has to be configured to use org.octopusden.octopus.license-management plugin
+
+.build.gradle
+[source,groovy]
+----
+plugins {
+    id 'org.octopusden.octopus.license-management'
+}
+----
+
+.settings.gradle
+[source,groovy]
+----
+pluginManagement {
+    plugins {
+        id 'org.octopusden.octopus.license-management' version settings['license-management.version']
+    }
+}
+----
+
+==== License legacy Plugin Application
+
+Applying the _org.octopusden.octopus.license-management_ plugin with the buildscript block:
+
+.build.gradle
+[source,groovy,subs="attributes"]
+----
+buildscript {
+    dependencies {
+        classpath "org.octopusden.octopus.license:org.octopusden.octopus.license-management:${project.findProperty('license-management.version') ?: '{version-label}'}"
+     }
+}
+
+apply plugin: 'org.octopusden.octopus.license-management'
+----
+
+==== Include licenses in distribution
+
+There are 2 strategies of processing:
+
+===== Full project (default)
+
+*Licenses of root project and all sub projects are placed into directory of module declaring license plugin usage*
+
+To include licenses in distribution an output of *processLicenses* task should be used as source
+
+.build.gradle
+[source,groovy]
+----
+plugins {
+    id 'org.octopusden.octopus.license-management'
+}
+
+task componentDistribution(type: Zip) {
+    ...
+    from (processLicenses) {
+        into 'licenses'
+    }
+    ...
+}
+----
+
+To include licenses  in jar
+
+.build.gradle
+[source,groovy]
+----
+plugins {
+    id 'org.octopusden.octopus.license-management'
+    id 'java-library'
+}
+
+processResources {
+    from (processLicenses) {
+        into 'licenses'
+    }
+}
+----
+
+===== Per module
+
+*Licenses of module only are placed into directory of module declaring license plugin usage*
+
+build.gradle
+[source,groovy]
+----
+plugins {
+    id 'org.octopusden.octopus.license-management'
+}
+
+task componentDistribution(type: Zip) {
+    ...
+    from (processModuleLicenses) {
+        into 'licenses'
+    }
+    ...
+}
+----
+
+To include licenses  in jar
+
+.build.gradle
+[source,groovy]
+----
+plugins {
+    id 'org.octopusden.octopus.license-management'
+    id 'java-library'
+}
+
+processResources {
+    from (processModuleLicenses) {
+        into 'licenses'
+    }
+}
+----
+
+=== Verify used licenses
+
+To verify used licenses specify dependency for *build* task on *processLicenses* task
+
+.build.gradle
+[source,groovy]
+----
+plugins {
+    id 'org.octopusden.octopus.license-management'
+    id 'java-library'
+}
+build.dependsOn processLicenses
+----
+
+==== Manually checking used licenses
+
+To process licenses (verify or include in distribution) set project parameter *license.skip* to false _(it is already configured on TeamCity C&UT standard templates)_
+
+----
+gradle -Plicense.skip=false processLicenses
+----
+
+=== The Node packages license control
+
+The Node packages license is a part of org.octopusden.octopus.license-management plugin.
+
+Required gradle version 7.5.1 or above
+
+==== Include node packages licenses in distribution
+
+To include licenses in distribution an output of *processNpmLicenses* task should be used as source.
+
+.build.gradle
+[source,groovy]
+----
+plugins {
+    id 'org.octopusden.octopus.license-management'
+}
+
+task componentDistribution(type: Zip) {
+    ...
+    from (processNpmLicenses) {
+        into 'licenses'
+    }
+    ...
+}
+----
+
+To include both gradle dependencies and js licenses in jar
+
+.build.gradle
+[source,groovy]
+----
+plugins {
+    id 'org.octopusden.octopus.license-management'
+    id 'java-library'
+}
+
+processResources {
+    dependsOn('processLicenses', 'processNpmLicenses')
+    from(layout.buildDirectory.dir('licenses')) {
+        into 'licenses'
+    }
+}
+----
+
+==== Parameters of _processNpmLicenses_ task
+
+See https://www.npmjs.com/package/license-checker#options. Example
+
+.build.gradle
+[source,groovy]
+----
+plugins {
+    id 'org.octopusden.octopus.license-management'
+}
+
+processNpmLicenses {
+    start = file("$projectDir/node-app")
+}
+----
+
+==== Manually checking used node packages licenses
+
+To process licenses (verify or include in distribution) set project parameter *license.skip* and *node.skip* to false.
+
+----
+gradle -Plicense.skip=false -Pnode.skip=false processNpmLicenses
+----

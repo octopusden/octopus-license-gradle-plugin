@@ -1,0 +1,28 @@
+plugins {
+    id 'org.octopusden.octopus.license-management'
+}
+
+configurations {
+    mockito
+}
+
+dependencies {
+    mockito group: 'org.mockito', name: 'mockito-core', version: '3.8.0'
+}
+
+task zipDistributive(type:Zip) {
+    archiveName     "module1.zip"
+    destinationDir file('build/distr')
+    from (processLicenses) {
+      into("licenses")
+    }
+}
+
+
+task assemble {
+    dependsOn zipDistributive
+}
+
+task build {
+    dependsOn assemble
+}

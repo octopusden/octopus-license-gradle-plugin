@@ -1,0 +1,34 @@
+plugins {
+    id 'org.octopusden.octopus.license-management'
+}
+
+project.group = 'org.octopusden.octopus.zenit'
+
+configurations{
+    c1
+    c2
+}
+
+
+dependencies {
+    c1 group: 'org.slf4j', name: 'slf4j-api', version: '2.0.3'
+    c2 group: 'org.slf4j', name: 'slf4j-api', version: '2.0.3'
+}
+
+task zipDistributive(type:Zip) {
+    archiveName     "generator.zip"
+    destinationDir file('build/distr')
+    from configurations.c1
+    from configurations.c2
+    from (processLicenses) {
+        into 'licenses'
+    }
+}
+
+task assemble {
+    dependsOn zipDistributive
+}
+
+task build {
+    dependsOn assemble
+}

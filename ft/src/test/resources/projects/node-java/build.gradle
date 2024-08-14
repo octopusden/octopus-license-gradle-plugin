@@ -1,0 +1,25 @@
+plugins {
+    id 'org.octopusden.octopus.license-management'
+    id 'java'
+}
+
+project.group = 'org.octopusden.octopus.npmtest'
+
+dependencies {
+    implementation 'com.google.code.gson:gson:2.10.1'
+}
+
+processNpmLicenses {
+    start = file("$projectDir/node-app")
+}
+
+processResources {
+    dependsOn('processLicenses', 'processNpmLicenses')
+    from(layout.buildDirectory.dir('licenses')) {
+        into 'licenses'
+    }
+}
+
+jar {
+    archiveName "node-java.jar"
+}

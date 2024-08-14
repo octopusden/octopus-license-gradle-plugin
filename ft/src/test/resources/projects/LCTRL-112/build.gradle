@@ -1,0 +1,9 @@
+plugins {
+    id 'org.octopusden.octopus.license-management' apply false
+}
+
+configure(subprojects) {
+    project.group = 'org.octopusden.octopus'
+}
+
+

@@ -1,0 +1,28 @@
+plugins {
+    id 'org.octopusden.octopus.license-management'
+}
+
+configurations {
+    logback
+}
+
+dependencies {
+   logback group: 'ch.qos.logback', name: 'logback-classic', version: '1.4.5'
+
+}
+
+task zipDistributive(type:Zip) {
+    archiveName     "module2.zip"
+    destinationDir file('build/distr')
+    from (processModuleLicenses) {
+        into 'licenses'
+    }
+}
+
+task assemble {
+    dependsOn zipDistributive
+}
+
+task build {
+    dependsOn assemble
+}

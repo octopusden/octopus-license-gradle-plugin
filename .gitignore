@@ -1,0 +1,7 @@
+build/
+out/
+.idea/
+.gradle/
+node_modules/
+yarn.lock
+yarn*.log

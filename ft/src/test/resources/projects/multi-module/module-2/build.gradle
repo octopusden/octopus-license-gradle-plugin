@@ -1,0 +1,29 @@
+plugins {
+    id 'org.octopusden.octopus.license-management'
+}
+
+configurations {
+    sshd
+}
+
+dependencies {
+    sshd group: 'org.apache.sshd', name: 'sshd-core', version: '2.6.0'
+    sshd project(path: ':module-1', configuration: 'mockito')
+}
+
+task zipDistributive(type:Zip) {
+    archiveName     "multi-module.zip"
+    destinationDir file('build/distr')
+    from configurations.sshd
+    from (processLicenses) {
+        into 'licenses'
+    }
+}
+
+task assemble {
+    dependsOn zipDistributive
+}
+
+task build {
+    dependsOn assemble
+}

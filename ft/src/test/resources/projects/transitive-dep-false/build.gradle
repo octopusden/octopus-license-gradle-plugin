@@ -1,0 +1,32 @@
+plugins {
+    id 'org.octopusden.octopus.license-management'
+}
+
+project.group = 'org.octopusden.octopus.zenit'
+
+configurations {
+    oct
+}
+
+dependencies {
+    oct ("org.octopusden.octopus.zenit:license-test-zip-with-dependencies:1.1@zip") {
+        transitive false
+    }
+}
+
+task zipDistributive(type:Zip) {
+    archiveName     "single-module.zip"
+    destinationDir file('build/distr')
+    from configurations.oct
+    from (processLicenses) {
+        into 'licenses'
+    }
+}
+
+task assemble {
+    dependsOn zipDistributive
+}
+
+task build {
+    dependsOn assemble
+}
