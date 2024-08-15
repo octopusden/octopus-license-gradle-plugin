@@ -4,16 +4,7 @@ on: [push, pull_request, workflow_dispatch]
 
 jobs:
   run-build-and-deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Ensure Gradle wrapper is executable
-        run: chmod +x ./gradlew
-
-      - name: Run common Java Gradle build
-        uses: octopusden/octopus-base/.github/workflows/common-java-gradle-build.yml@v2.1.8
-        with:
-          flow-type: hybrid
-          java-version: '11'
+    uses: octopusden/octopus-base/.github/workflows/common-java-gradle-build.yml@v2.1.8
+    with:
+      flow-type: hybrid
+      java-version: '11'
