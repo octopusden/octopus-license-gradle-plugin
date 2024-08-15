@@ -1,6 +1,9 @@
 name: Gradle Release
 
 on:
+  push:
+    branches:
+      - initial-pipeline
   repository_dispatch:
     types: release
 
