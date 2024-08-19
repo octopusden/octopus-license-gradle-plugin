@@ -5,6 +5,13 @@ plugins {
 
 group = 'org.octopusden.octopus'
 
+repositories {
+    mavenCentral()
+    maven {
+        url "https://plugins.gradle.org/m2/"
+    }
+}
+
 dependencies {
     api group: 'com.platformlib', name: 'platformlib-process-local', version: project['platformlib-process.version']
     testImplementation "ch.qos.logback:logback-classic:1.2.3"
