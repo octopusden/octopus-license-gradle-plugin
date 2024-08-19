@@ -1,7 +1,7 @@
 package org.octopusden.octopus.license.management.plugins.gradle
 
-//import com.github.gradle.node.npm.task.NpmTask
 import com.github.gradle.node.npm.task.NpmTask
+import com.github.gradle.node.npm.task.NpxTask
 import org.octopusden.octopus.license.management.plugins.gradle.tasks.ProcessNpmLicensesTask
 import org.octopusden.octopus.license.management.plugins.gradle.tasks.LicenseTask
 import org.octopusden.octopus.license.management.plugins.gradle.tasks.LicensedDependenciesAnalyzingTask
@@ -68,10 +68,10 @@ class LicenseGradlePlugin implements Plugin<Project> {
                 environment['PATH'] = getEnvPath(project)
                 group = null
             }
-            project.tasks.register("nodeLicenseCheckerProcess", NpmTask) {
+            project.tasks.register("nodeLicenseCheckerProcess", NpxTask) {
                 dependsOn('nodeLicenseCheckerInstall')
                 group = null
-                args = ['license-checker']
+                command = 'license-checker'
                 description 'Run npm license-checker. Required:-Plicense.skip=false -Pnode.skip=false'
                 environment['PATH'] = getEnvPath(project)
             }
