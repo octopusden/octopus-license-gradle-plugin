@@ -113,7 +113,7 @@ class LicenseTask extends DefaultTask {
             def mavenHome = System.getProperty("MAVEN_HOME", System.getenv("MAVEN_HOME"))
             def command
             if (mavenHome == null) {
-                command = "mvn.cmd"
+                command = "mvn"
             } else {
                 command = "$mavenHome/bin/mvn"
             }
