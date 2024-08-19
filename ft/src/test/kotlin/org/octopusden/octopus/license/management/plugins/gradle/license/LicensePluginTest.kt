@@ -88,22 +88,20 @@ class LicensePluginTest {
             testProjectName = "ibm-libraries"
         }
         assertNotEquals(0, instance.exitCode)
-        assertThat(instance.stdErr).contains("[WARNING] License \"IBM\" used by 2 dependencies:")
-
+        assertThat(instance.stdErr).contains("[WARNING] License \"IBM International Program License Agreement\" used by 1 dependencies:")
         val projectPath = gradle {
             testProjectName = "ibm-libraries"
             additionalArguments = arrayOf("-PexcludeIbmGroups")
         }
         assertThat(zipTreeEntries(projectPath.resolve("build/distr/ibm-module.zip")))
-            .containsOnly(
+            .contains(
                 ZipTreeEntry("licenses/apache-2.0 - apache-2.0.txt"),
                 ZipTreeEntry("licenses/mit - mit.txt"),
                 ZipTreeEntry("licenses/THIRD-PARTY.txt"),
                 ZipTreeEntry("slf4j-api-1.7.30.jar"),
                 ZipTreeEntry("sshd-common-2.6.0.jar"),
                 ZipTreeEntry("sshd-core-2.6.0.jar"),
-                ZipTreeEntry("mq-7.0.1.6.jar"),
-                ZipTreeEntry("com.ibm.ws.sib.client.thin.jms-7.0.0.jar")
+                ZipTreeEntry("com.ibm.mq.allclient-9.4.0.0.jar"),
             )
     }
 

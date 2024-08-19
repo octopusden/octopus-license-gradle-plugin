@@ -8,9 +8,7 @@ version = "1.0-SNAPSHOT"
 repositories {
     mavenLocal()
     mavenCentral()
-    maven {
-        url "https://plugins.gradle.org/m2/"
-    }
+    gradlePluginPortal()
 }
 
 dependencies{

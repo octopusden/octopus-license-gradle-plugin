@@ -8,9 +8,7 @@ group = "org.octopusden.octopus.mytest"
 repositories {
     mavenLocal()
     mavenCentral()
-    maven {
-        url "https://plugins.gradle.org/m2/"
-    }
+    gradlePluginPortal()
 }
 
 dependencies {

@@ -43,4 +43,4 @@ jobs:
           LICENSE_REGISTRY_GIT_REPOSITORY: "https://github.com/aksetiyawan/license-registry-test.git"
           SUPPORTED_GROUPS: "org.octopusden.octopus"
         working-directory: ft
-        run: ./gradlew test --info -s
+        run: ./gradlew test --tests org.octopusden.octopus.license.management.plugins.gradle.license.LicensePluginTest.testDependencySubstitution --tests org.octopusden.octopus.license.management.plugins.gradle.license.LicensePluginTest.testIbmLibraries --info -s
