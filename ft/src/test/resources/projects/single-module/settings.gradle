@@ -7,6 +7,13 @@ pluginManagement {
             url "https://plugins.gradle.org/m2/"
         }
     }
+    resolutionStrategy {
+        eachPlugin {
+            if (requested.id.id == 'org.octopusden.octopus.license-management') {
+                useModule("org.octopusden.octopus:license-management:${requested.version}")
+            }
+        }
+    }
     plugins {
         id 'org.octopusden.octopus.license-management' version settings['license-management.version']
     }
