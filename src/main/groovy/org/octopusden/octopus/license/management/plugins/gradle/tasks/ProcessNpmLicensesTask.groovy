@@ -14,7 +14,7 @@
  */
 package org.octopusden.octopus.license.management.plugins.gradle.tasks
 
-import com.github.gradle.node.npm.task.NpxTask
+import com.github.gradle.node.npm.task.NpmTask
 import org.octopusden.octopus.license.management.plugins.gradle.utils.LicenseRegistryClient
 import org.gradle.api.Project
 import org.gradle.api.tasks.Input
@@ -204,7 +204,7 @@ class ProcessNpmLicensesTask extends DefaultTask {
     }
 
     def runLicenseChecker(File workDir, File outFile) {
-        NpxTask npx = project.tasks.('nodeLicenseCheckerProcess')
+        NpmTask npx = project.tasks.('nodeLicenseCheckerProcess')
         npx.with {
             environment['PATH'] = getEnvPath(project)
             command.set('license-checker')
