@@ -144,7 +144,7 @@ class LicensedDependenciesAnalyzingTask extends DefaultTask {
                 supportedGroups.addAll(supportedGroupsString.split(",").collect { it.trim() })
             }
 
-            if (project.hasProperty(CRS_URL)) {
+            if (project.hasProperty(CRS_URL) && project.property(CRS_URL) != "null") {
                 def url = new URL("${project.property(CRS_URL)}/rest/api/2/common/supported-groups")
                 def connection = (HttpURLConnection) url.openConnection()
                 connection.requestMethod = 'GET'
