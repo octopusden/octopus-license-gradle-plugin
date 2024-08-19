@@ -5,6 +5,14 @@ plugins {
 
 group = "org.octopusden.octopus.mytest"
 
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven {
+        url "https://plugins.gradle.org/m2/"
+    }
+}
+
 dependencies {
     implementation("com.auth0:jwks-rsa:0.22.0")
 }

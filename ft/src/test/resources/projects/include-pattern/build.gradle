@@ -5,6 +5,14 @@ plugins {
 
 project.group = 'org.octopusden.octopus.zenit'
 
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven {
+        url "https://plugins.gradle.org/m2/"
+    }
+}
+
 configurations {
     log4j
     slf4j

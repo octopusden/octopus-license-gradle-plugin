@@ -1,3 +1,11 @@
 plugins {
     id 'java-library'
 }
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven {
+        url "https://plugins.gradle.org/m2/"
+    }
+}

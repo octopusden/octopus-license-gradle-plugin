@@ -4,6 +4,14 @@ plugins {
 
 project.group = 'org.octopusden.octopus.npmtest'
 
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven {
+        url "https://plugins.gradle.org/m2/"
+    }
+}
+
 processNpmLicenses {
     start = file("$projectDir/node-app")
 }
