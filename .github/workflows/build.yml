@@ -35,23 +35,9 @@ jobs:
       - name: Publish to Maven Local
         run: ./gradlew build publishAllPublicationsToMavenLocalRepository
 
-      - name: Check .m2 repository contents
-        run: ls -R ~/.m2/repository/org/octopusden/octopus || echo "Directory does not exist"
-
-      - name: Ensure sh shell is available
-        run: |
-          if ! command -v sh &> /dev/null; then
-            echo "sh could not be found, installing..."
-            sudo apt-get update
-            sudo apt-get install -y bash
-            sudo ln -s /bin/bash /bin/sh
-          else
-            echo "sh is available"
-          fi
-
       - name: Run tests
         env:
           LICENSE_REGISTRY_GIT_REPOSITORY: "https://github.com/aksetiyawan/license-registry-test.git"
           SUPPORTED_GROUPS: "org.octopusden.octopus"
         working-directory: ft
-        run: ./gradlew test --tests org.octopusden.octopus.license.management.plugins.gradle.license.LicensePluginTest.testNodeSingleModule --debug --stacktrace --scan
+        run: ./gradlew test --tests org.octopusden.octopus.license.management.plugins.gradle.license.LicensePluginTest.testSingleModule --info -s
