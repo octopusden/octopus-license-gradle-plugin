@@ -38,12 +38,10 @@ jobs:
       - name: Check .m2 repository contents
         run: ls -R ~/.m2/repository/org/octopusden/octopus || echo "Directory does not exist"
 
-      - name: Check for sh availability
-        run: which sh || echo "sh not found. Installing..." && sudo apt install sh
-
       - name: Run tests
         env:
           LICENSE_REGISTRY_GIT_REPOSITORY: "https://github.com/aksetiyawan/license-registry-test.git"
           SUPPORTED_GROUPS: "org.octopusden.octopus"
         working-directory: ft
+        shell: bash
         run: ./gradlew test --tests org.octopusden.octopus.license.management.plugins.gradle.license.LicensePluginTest.testNodeSingleModule --debug --stacktrace --scan
