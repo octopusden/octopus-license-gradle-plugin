@@ -1,5 +1,8 @@
 //
 pluginManagement {
+    repositories {
+        mavenLocal()
+    }
     plugins {
         id 'org.octopusden.octopus.license-management' version settings['license-management.version']
     }
