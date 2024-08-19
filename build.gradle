@@ -52,6 +52,11 @@ publishing {
     publications {
         mavenJava(MavenPublication) {
             artifactId 'license-gradle-plugin'
+            from components.java
         }
+    }
+
+    repositories {
+        mavenLocal()
     }
 }
