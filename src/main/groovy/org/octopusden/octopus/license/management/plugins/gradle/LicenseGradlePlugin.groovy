@@ -71,7 +71,7 @@ class LicenseGradlePlugin implements Plugin<Project> {
             project.tasks.register("nodeLicenseCheckerProcess", NpmTask) {
                 dependsOn('nodeLicenseCheckerInstall')
                 group = null
-                command = 'license-checker'
+                args = ['license-checker']
                 description 'Run npm license-checker. Required:-Plicense.skip=false -Pnode.skip=false'
                 environment['PATH'] = getEnvPath(project)
             }

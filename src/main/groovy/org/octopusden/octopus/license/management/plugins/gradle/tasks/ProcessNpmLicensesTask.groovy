@@ -204,10 +204,10 @@ class ProcessNpmLicensesTask extends DefaultTask {
     }
 
     def runLicenseChecker(File workDir, File outFile) {
-        NpmTask npx = project.tasks.('nodeLicenseCheckerProcess')
-        npx.with {
+        NpmTask npm = project.tasks.('nodeLicenseCheckerProcess')
+        npm.with {
             environment['PATH'] = getEnvPath(project)
-            command.set('license-checker')
+            args.addAll('license-checker')
             if (production) args.addAll("--production")
             if (development) args.addAll("--development")
             if (unknown) args.addAll("--unknown")
