@@ -207,7 +207,7 @@ class ProcessNpmLicensesTask extends DefaultTask {
         NpmTask npm = project.tasks.('nodeLicenseCheckerProcess')
         npm.with {
             environment['PATH'] = getEnvPath(project)
-            args.addAll('license-checker')
+//            args.addAll('license-checker')
             if (production) args.addAll("--production")
             if (development) args.addAll("--development")
             if (unknown) args.addAll("--unknown")
