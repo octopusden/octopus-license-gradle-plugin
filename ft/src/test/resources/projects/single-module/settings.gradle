@@ -10,7 +10,7 @@ pluginManagement {
     resolutionStrategy {
         eachPlugin {
             if (requested.id.id == 'org.octopusden.octopus.license-management') {
-                useModule("org.octopusden.octopus:license-management:${settings['license-management.version']}")
+                useModule("org.octopusden.octopus:license-management.gradle.plugin:${settings['license-management.version']}")
             }
         }
     }
