@@ -8,6 +8,13 @@ plugins {
 group = 'org.octopusden.octopus'
 description "License gradle plugin"
 
+repositories {
+    mavenCentral()
+    maven {
+        url "https://plugins.gradle.org/m2/"
+    }
+}
+
 dependencies {
     implementation "com.github.node-gradle:gradle-node-plugin:${project.'gradle-node-plugin.version'}"
 }
