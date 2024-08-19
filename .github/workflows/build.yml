@@ -3,11 +3,11 @@ name: Gradle Build & UT
 on: [push, pull_request, workflow_dispatch]
 
 jobs:
-  build:
-    uses: octopusden/octopus-base/.github/workflows/common-java-gradle-build.yml@v2.1.7
-    with:
-      flow-type: public
-      java-version: '8'
+#  build:
+#    uses: octopusden/octopus-base/.github/workflows/common-java-gradle-build.yml@v2.1.7
+#    with:
+#      flow-type: public
+#      java-version: '8'
 
   publish_and_test:
     runs-on: ubuntu-latest
@@ -33,7 +33,7 @@ jobs:
             ${{ runner.os }}-m2-
 
       - name: Publish to Maven Local
-        run: ./gradlew publishAllPublicationsToMavenLocalRepository
+        run: ./gradlew build publishAllPublicationsToMavenLocalRepository
 
       - name: Check .m2 repository contents
         run: ls -R ~/.m2/repository/org/octopusden/octopus || echo "Directory does not exist"
