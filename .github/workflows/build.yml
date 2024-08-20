@@ -48,3 +48,9 @@ jobs:
         with:
           name: npm-debug-log
           path: /home/runner/.npm/_logs/*.log
+
+      - name: Upload test resources
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-resources
+          path: /home/runner/work/octopus-license-gradle-plugin/octopus-license-gradle-plugin/ft/build/resources/test/projects/node-single-module/**
