@@ -10,7 +10,14 @@ beforeSettings {
     }
 }
 
-// Use Nexus for all Gradle projects
+dependencyResolutionManagement {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
 allprojects {
     repositories {
         mavenLocal()
