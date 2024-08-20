@@ -50,6 +50,7 @@ jobs:
           path: /home/runner/.npm/_logs/*.log
 
       - name: List files in test projects directory
+        if: failure()
         run: |
-          echo "Listing all files in /home/runner/work/octopus-license-gradle-plugin/octopus-license-gradle-plugin/ft/build/resources/test/projects:"
-          ls -R /home/runner/work/octopus-license-gradle-plugin/octopus-license-gradle-plugin/ft/build/resources/test/projects
+          echo "Listing all files in /home/runner/work/octopus-license-gradle-plugin/octopus-license-gradle-plugin/ft/build/resources/test/projects/node-single-module:"
+          ls -R /home/runner/work/octopus-license-gradle-plugin/octopus-license-gradle-plugin/ft/build/resources/test/projects/node-single-module
