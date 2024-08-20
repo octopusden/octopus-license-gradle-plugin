@@ -1,3 +1,32 @@
+beforeSettings {
+    settingsEvaluated { settings ->
+        settings.pluginManagement {
+            repositories {
+                mavenCentral()
+                gradlePluginPortal()
+            }
+            resolutionStrategy {
+                eachPlugin { plugin ->
+                    if (plugin.id == 'org.octopusden.octopus.license-management' && plugin.version == '1.0-SNAPSHOT') {
+                        repositories {
+                            mavenLocal()
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+dependencyResolutionManagement {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
 allprojects {
     repositories {
         mavenLocal()

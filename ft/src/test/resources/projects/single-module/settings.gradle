@@ -1,9 +1,5 @@
 //
 pluginManagement {
-    repositories {
-        mavenLocal()
-        gradlePluginPortal()
-    }
     plugins {
         id 'org.octopusden.octopus.license-management' version settings['license-management.version']
     }
