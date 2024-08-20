@@ -49,9 +49,7 @@ jobs:
           name: npm-debug-log
           path: /home/runner/.npm/_logs/*.log
 
-      - name: Upload test resources
-        if: failure()
-        uses: actions/upload-artifact@v3
-        with:
-          name: test-resources
-          path: /home/runner/work/octopus-license-gradle-plugin/octopus-license-gradle-plugin/ft/build/resources/test/projects/node-single-module/node-app/*
+      - name: List files in test projects directory
+        run: |
+          echo "Listing all files in /home/runner/work/octopus-license-gradle-plugin/octopus-license-gradle-plugin/ft/build/resources/test/projects:"
+          ls -R /home/runner/work/octopus-license-gradle-plugin/octopus-license-gradle-plugin/ft/build/resources/test/projects
