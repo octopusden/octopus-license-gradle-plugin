@@ -208,6 +208,7 @@ class ProcessNpmLicensesTask extends DefaultTask {
         npx.with {
             environment['PATH'] = getEnvPath(project)
             command.set('license-checker')
+            args.addAll("--verbose")
             if (production) args.addAll("--production")
             if (development) args.addAll("--development")
             if (unknown) args.addAll("--unknown")
