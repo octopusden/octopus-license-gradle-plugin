@@ -4,10 +4,6 @@ plugins {
 
 project.group = 'org.octopusden.octopus.zenit'
 
-repositories {
-    mavenCentral()
-}
-
 configurations {
     sshd
 }

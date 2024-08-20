@@ -40,17 +40,17 @@ jobs:
           LICENSE_REGISTRY_GIT_REPOSITORY: "https://github.com/aksetiyawan/license-registry-test.git"
           SUPPORTED_GROUPS: "org.octopusden.octopus"
         working-directory: ft
-        run: ./gradlew test --tests org.octopusden.octopus.license.management.plugins.gradle.license.LicensePluginTest.testNodeSingleModule --info -s
+        run: ./gradlew test --tests org.octopusden.octopus.license.management.plugins.gradle.license.LicensePluginTest.testSingleModule --info -s
 
-      - name: Upload NPM debug log
-        if: failure()
-        uses: actions/upload-artifact@v3
-        with:
-          name: npm-debug-log
-          path: /home/runner/.npm/_logs/*.log
-
-      - name: List files in test projects directory
-        if: failure()
-        run: |
-          echo "Listing all files in /home/runner/work/octopus-license-gradle-plugin/octopus-license-gradle-plugin/ft/build/resources/test/projects/node-single-module:"
-          ls -R /home/runner/work/octopus-license-gradle-plugin/octopus-license-gradle-plugin/ft/build/resources/test/projects/node-single-module
+#      - name: Upload NPM debug log
+#        if: failure()
+#        uses: actions/upload-artifact@v3
+#        with:
+#          name: npm-debug-log
+#          path: /home/runner/.npm/_logs/*.log
+#
+#      - name: List files in test projects directory
+#        if: failure()
+#        run: |
+#          echo "Listing all files in /home/runner/work/octopus-license-gradle-plugin/octopus-license-gradle-plugin/ft/build/resources/test/projects/node-single-module:"
+#          ls -R /home/runner/work/octopus-license-gradle-plugin/octopus-license-gradle-plugin/ft/build/resources/test/projects/node-single-module

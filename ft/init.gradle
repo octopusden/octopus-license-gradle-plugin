@@ -1,0 +1,27 @@
+if (org.gradle.util.GradleVersion.current() >= org.gradle.util.GradleVersion.version('6.0')) {
+    settingsEvaluated { settings ->
+        settings.pluginManagement {
+            repositories {
+                mavenLocal()
+                mavenCentral()
+                gradlePluginPortal()
+            }
+        }
+    }
+}
+
+// Use Nexus for all Gradle projects
+allprojects {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+    buildscript {
+        repositories {
+            mavenLocal()
+            mavenCentral()
+            gradlePluginPortal()
+        }
+    }
+}
