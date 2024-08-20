@@ -50,6 +50,7 @@ jobs:
           path: /home/runner/.npm/_logs/*.log
 
       - name: Upload test resources
+        if: failure()
         uses: actions/upload-artifact@v3
         with:
           name: test-resources
