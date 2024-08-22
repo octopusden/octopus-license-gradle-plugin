@@ -144,7 +144,7 @@ class LicensedDependenciesAnalyzingTask extends DefaultTask {
                 supportedGroups.addAll(supportedGroupsString.split(",").collect { it.trim() })
             }
 
-            if (project.hasProperty(CRS_URL) && project.property(CRS_URL) != "null") {
+            if (project.hasProperty(CRS_URL) && isValidUrl(CRS_URL)) {
                 def url = new URL("${project.property(CRS_URL)}/rest/api/2/common/supported-groups")
                 def connection = (HttpURLConnection) url.openConnection()
                 connection.requestMethod = 'GET'
@@ -215,6 +215,15 @@ class LicensedDependenciesAnalyzingTask extends DefaultTask {
     Collection<MavenGAV> dependencyToMavenGav(Project project, Configuration configuration, ResolvedDependency resolvedDependency) {
         return resolvedDependency.moduleArtifacts.collect {
             artifactToMavenGav(project, configuration, it)
+        }
+    }
+
+    static def isValidUrl (String urlString) {
+        try {
+            new URL(urlString)
+            return true
+        } catch (MalformedURLException ignored) {
+            return false
         }
     }
 
