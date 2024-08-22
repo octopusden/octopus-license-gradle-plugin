@@ -24,8 +24,33 @@ jobs:
           distribution: 'adopt'
           cache: 'gradle'
 
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
+      - name: Set up init.gradle
+        run: |
+          mkdir -p ~/.gradle
+          echo "settingsEvaluated { settings ->
+              settings.pluginManagement {
+                  repositories {
+                      mavenLocal()
+                      mavenCentral()
+                      gradlePluginPortal()
+                  }
+              }
+          }
+          
+          allprojects {
+              repositories {
+                  mavenLocal()
+                  mavenCentral()
+                  gradlePluginPortal()
+              }
+              buildscript {
+                  repositories {
+                      mavenLocal()
+                      mavenCentral()
+                      gradlePluginPortal()
+                  }
+              }
+          }" > ~/.gradle/init.gradle
 
       - name: Cache local Maven repository
         uses: actions/cache@v2
