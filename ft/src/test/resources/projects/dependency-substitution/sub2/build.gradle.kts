@@ -4,12 +4,6 @@ plugins {
 
 group = "org.eclipse.jetty"
 
-repositories {
-    mavenLocal()
-    mavenCentral()
-    gradlePluginPortal()
-}
-
 dependencies {
     implementation("org.eclipse.jetty:jetty-util:9.4.51.v20230217") {
 

@@ -2,12 +2,6 @@ plugins {
     id 'org.octopusden.octopus.license-management' apply false
 }
 
-repositories {
-    mavenLocal()
-    mavenCentral()
-    gradlePluginPortal()
-}
-
 configure(subprojects) {
     project.group = 'org.octopusden.octopus'
 }

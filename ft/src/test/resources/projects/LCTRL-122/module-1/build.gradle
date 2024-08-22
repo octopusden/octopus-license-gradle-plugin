@@ -2,12 +2,6 @@ plugins {
     id 'org.octopusden.octopus.license-management'
 }
 
-repositories {
-    mavenLocal()
-    mavenCentral()
-    gradlePluginPortal()
-}
-
 configurations {
     mockito
 }

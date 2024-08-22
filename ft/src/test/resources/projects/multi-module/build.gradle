@@ -3,9 +3,3 @@ plugins {
 }
 
 project.group = 'org.octopusden.octopus.zenit'
-
-repositories {
-    mavenLocal()
-    mavenCentral()
-    gradlePluginPortal()
-}

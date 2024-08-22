@@ -2,12 +2,6 @@ plugins {
     id 'org.octopusden.octopus.license-management'
 }
 
-repositories {
-    mavenLocal()
-    mavenCentral()
-    gradlePluginPortal()
-}
-
 task zipDistributive(type: Zip) {
     archiveName "node-module2.zip"
     destinationDir file('build/distr')

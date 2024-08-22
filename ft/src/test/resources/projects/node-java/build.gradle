@@ -5,12 +5,6 @@ plugins {
 
 project.group = 'org.octopusden.octopus.npmtest'
 
-repositories {
-    mavenLocal()
-    mavenCentral()
-    gradlePluginPortal()
-}
-
 dependencies {
     implementation 'com.google.code.gson:gson:2.10.1'
 }

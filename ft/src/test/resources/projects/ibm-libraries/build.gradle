@@ -4,12 +4,6 @@ plugins {
 
 project.group = 'org.octopusden.octopus.spartak'
 
-repositories {
-    mavenLocal()
-    mavenCentral()
-    gradlePluginPortal()
-}
-
 configurations {
     sshd
     ibm

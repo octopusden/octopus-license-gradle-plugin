@@ -5,12 +5,6 @@ plugins {
 
 project.group = 'org.octopusden.octopus.zenit'
 
-repositories {
-    mavenLocal()
-    mavenCentral()
-    gradlePluginPortal()
-}
-
 dependencies {
     api ("com.github.ben-manes.caffeine:caffeine:2.9.0")
 }
