@@ -38,7 +38,7 @@ jobs:
 
       - name: Run tests
         env:
-          LICENSE_REGISTRY_GIT_REPOSITORY: "https://github.com/aksetiyawan/license-registry-test.git"
+          LICENSE_REGISTRY_GIT_REPOSITORY: "https://github.com/octopusden/octopus-test-license-registry.git"
           SUPPORTED_GROUPS: "org.octopusden.octopus"
         working-directory: ft
         run: ./gradlew test --info -s
