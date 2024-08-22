@@ -5,11 +5,11 @@ plugins {
 
 group = 'org.octopusden.octopus'
 
-repositories {
-    mavenLocal()
-    mavenCentral()
-    gradlePluginPortal()
-}
+//repositories {
+//    mavenLocal()
+//    mavenCentral()
+//    gradlePluginPortal()
+//}
 
 dependencies {
     api group: 'com.platformlib', name: 'platformlib-process-local', version: project['platformlib-process.version']
