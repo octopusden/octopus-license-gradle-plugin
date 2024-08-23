@@ -239,7 +239,8 @@ class LicensePluginTest {
     }
 
     @Test
-    @Disabled("Test disabled due to unresolved file path error in npx")
+    @Disabled("Disabled due to unresolved file path error with 'npx' command execution")
+    // Related Issue: Fix NPM Functional Tests Error - see https://github.com/octopusden/octopus-license-gradle-plugin/issues/3
     fun testNodeJava() {
         val projectPath = gradle {
             testProjectName = "node-java"
@@ -263,7 +264,8 @@ class LicensePluginTest {
     }
 
     @Test
-    @Disabled("Test disabled due to unresolved file path error in npx")
+    @Disabled("Disabled due to unresolved file path error with 'npx' command execution")
+    // Related Issue: Fix NPM Functional Tests Error - see https://github.com/octopusden/octopus-license-gradle-plugin/issues/3
     fun testNodeSingleModule() {
         val projectPath = gradle {
             testProjectName = "node-single-module"
@@ -283,7 +285,8 @@ class LicensePluginTest {
     }
 
     @Test
-    @Disabled("Test disabled due to unresolved file path error in npx")
+    @Disabled("Disabled due to unresolved file path error with 'npx' command execution")
+    // Related Issue: Fix NPM Functional Tests Error - see https://github.com/octopusden/octopus-license-gradle-plugin/issues/3
     fun testNodeMultiModule() {
         val projectPath = gradle {
             testProjectName = "node-multi-module"
