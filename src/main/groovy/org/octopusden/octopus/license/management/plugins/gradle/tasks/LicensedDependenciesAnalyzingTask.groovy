@@ -208,15 +208,6 @@ class LicensedDependenciesAnalyzingTask extends DefaultTask {
         }
     }
 
-    static def isValidUrl (String urlString) {
-        try {
-            new URL(urlString)
-            return true
-        } catch (MalformedURLException ignored) {
-            return false
-        }
-    }
-
     def addChoosingVariantsInstruction(StringBuilder sb) {
         if (sb.contains("Cannot choose between the following variants")) {
             def varInstr = """
