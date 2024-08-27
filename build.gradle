@@ -15,6 +15,7 @@ repositories {
 
 dependencies {
     implementation "com.github.node-gradle:gradle-node-plugin:${project.'gradle-node-plugin.version'}"
+    api "org.octopusden.octopus.infrastructure:components-registry-service-client:${project['octopus-components-registry-service.version']}"
 }
 
 gradlePlugin {

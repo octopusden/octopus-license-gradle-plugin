@@ -1,8 +1,9 @@
 package org.octopusden.octopus.license.management.plugins.gradle.tasks
 
+import org.octopusden.octopus.components.registry.client.impl.ClassicComponentsRegistryServiceClient
+import org.octopusden.octopus.components.registry.client.impl.ClassicComponentsRegistryServiceClientUrlProvider
 import org.octopusden.octopus.license.management.plugins.gradle.dto.MavenGAV
 import groovy.json.JsonBuilder
-import groovy.json.JsonSlurper
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
@@ -144,35 +145,24 @@ class LicensedDependenciesAnalyzingTask extends DefaultTask {
                 supportedGroups.addAll(supportedGroupsString.split(",").collect { it.trim() })
             }
 
-            if (project.hasProperty(CRS_URL) && isValidUrl(CRS_URL)) {
-                def url = new URL("${project.property(CRS_URL)}/rest/api/2/common/supported-groups")
-                def connection = (HttpURLConnection) url.openConnection()
-                connection.requestMethod = 'GET'
-
-                logger.info("Requesting supported groups from URL: ${url}")
-
-                def responseCode = connection.getResponseCode()
-
-                if (responseCode == HttpURLConnection.HTTP_OK) {
-                    def inputStream = connection.getInputStream()
-                    def responseText = inputStream.text
-
-                    def jsonSlurper = new JsonSlurper()
-                    def supportedGroupsRes = jsonSlurper.parseText(responseText)
-
-                    if (supportedGroupsRes instanceof List && supportedGroupsRes.every{ it instanceof String }) {
-                        logger.info("Successfully get supported groups from component registry: ${supportedGroupsRes}")
-                        supportedGroups.addAll(supportedGroupsRes)
-                    } else {
-                        logger.error("Unexpected format of supported groups: ${supportedGroupsRes}")
+            def componentsRegistryApiUrl = project.hasProperty(CRS_URL) ? project.findProperty(CRS_URL).toString() : null
+            def componentsRegistryServiceClient = new ClassicComponentsRegistryServiceClient(
+                new ClassicComponentsRegistryServiceClientUrlProvider() {
+                    @Override
+                    String getApiUrl() {
+                        return componentsRegistryApiUrl
                     }
-                } else {
-                    logger.error("Failed to get a successful response. HTTP error code: ${responseCode}")
                 }
+            )
 
-                connection.disconnect()
+            if (componentsRegistryApiUrl) {
+                try {
+                    supportedGroups.addAll(componentsRegistryServiceClient.supportedGroupIds)
+                } catch (Exception e) {
+                    logger.warn("Failed to get a successful supported groups response! ${e.message}")
+                }
             } else {
-                logger.warn("There is no component-registry-service-url provided")
+                logger.warn("There is no $CRS_URL provided")
             }
 
             if (supportedGroups.size() > 0) {
