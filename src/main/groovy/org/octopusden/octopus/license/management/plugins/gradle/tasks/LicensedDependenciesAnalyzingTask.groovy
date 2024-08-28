@@ -138,40 +138,49 @@ class LicensedDependenciesAnalyzingTask extends DefaultTask {
             }
 
             def supportedGroups = new HashSet<String>()
+            def hasSupportedGroups = project.hasProperty(SUPPORTED_GROUPS)
+            def hasCrsUrl = project.hasProperty(CRS_URL)
 
-            if (project.hasProperty(SUPPORTED_GROUPS)) {
+            if (hasSupportedGroups == hasCrsUrl) {
+                throw new IllegalArgumentException(
+                    hasSupportedGroups
+                        ? "Can only 1 property exist: either $SUPPORTED_GROUPS or $CRS_URL, not both."
+                        : "At least one property must exist: $SUPPORTED_GROUPS or $CRS_URL."
+                )
+            }
+
+            if (hasSupportedGroups) {
                 def supportedGroupsString = project.property(SUPPORTED_GROUPS) as String
                 logger.info("Supported groups from property: ${supportedGroupsString}")
                 supportedGroups.addAll(supportedGroupsString.split(",").collect { it.trim() })
             }
 
-            def componentsRegistryApiUrl = project.hasProperty(CRS_URL) ? project.findProperty(CRS_URL).toString() : null
-            def componentsRegistryServiceClient = new ClassicComponentsRegistryServiceClient(
-                new ClassicComponentsRegistryServiceClientUrlProvider() {
-                    @Override
-                    String getApiUrl() {
-                        return componentsRegistryApiUrl
+            if (hasCrsUrl) {
+                def componentsRegistryApiUrl = project.findProperty(CRS_URL).toString()
+                def componentsRegistryServiceClient = new ClassicComponentsRegistryServiceClient(
+                    new ClassicComponentsRegistryServiceClientUrlProvider() {
+                        @Override
+                        String getApiUrl() {
+                            return componentsRegistryApiUrl
+                        }
                     }
-                }
-            )
-
-            if (componentsRegistryApiUrl) {
+                )
                 try {
                     supportedGroups.addAll(componentsRegistryServiceClient.supportedGroupIds)
                 } catch (Exception e) {
-                    logger.warn("Failed to get a successful supported groups response! ${e.message}")
+                    throw new IllegalStateException("Failed to get a successful supported groups response!", e)
                 }
-            } else {
-                logger.warn("There is no $CRS_URL provided")
             }
 
-            if (supportedGroups.size() > 0) {
-                def builder = new JsonBuilder()
-                supportedGroups.each { group ->
-                    builder(resolvedArtifacts.findAll { !it.getGroup().startsWith(group.toString()) && !it.getGroup().startsWith(group.toString()) }.collect { it })
-                }
-                dependenciesListFile.write(builder.toPrettyString())
+            if (supportedGroups.isEmpty()) {
+                throw new IllegalArgumentException("Can't found any supported groups, please check your $SUPPORTED_GROUPS or $CRS_URL values!")
             }
+
+            def builder = new JsonBuilder()
+            supportedGroups.each { group ->
+                builder(resolvedArtifacts.findAll { !it.getGroup().startsWith(group.toString()) && !it.getGroup().startsWith(group.toString()) }.collect { it })
+            }
+            dependenciesListFile.write(builder.toPrettyString())
         }
         printFoundProblems(resProblemsMessages)
     }
