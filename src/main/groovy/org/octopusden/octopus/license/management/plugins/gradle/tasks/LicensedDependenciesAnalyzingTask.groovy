@@ -141,12 +141,11 @@ class LicensedDependenciesAnalyzingTask extends DefaultTask {
             def hasSupportedGroups = project.hasProperty(SUPPORTED_GROUPS)
             def hasCrsUrl = project.hasProperty(CRS_URL)
 
-            if (hasSupportedGroups == hasCrsUrl) {
-                throw new IllegalArgumentException(
-                    hasSupportedGroups
-                        ? "Can only 1 property exist: either $SUPPORTED_GROUPS or $CRS_URL, not both."
-                        : "At least one property must exist: $SUPPORTED_GROUPS or $CRS_URL."
-                )
+            if (hasSupportedGroups && hasCrsUrl) {
+                throw new IllegalArgumentException("Can only 1 property exist: either $SUPPORTED_GROUPS or $CRS_URL, not both.")
+            }
+            if (!hasSupportedGroups && !hasCrsUrl) {
+                throw new IllegalArgumentException("At least one property must exist: $SUPPORTED_GROUPS or $CRS_URL.")
             }
 
             if (hasSupportedGroups) {
