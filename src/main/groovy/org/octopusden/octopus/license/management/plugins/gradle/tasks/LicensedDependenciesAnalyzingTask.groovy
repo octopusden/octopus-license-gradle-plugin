@@ -167,7 +167,7 @@ class LicensedDependenciesAnalyzingTask extends DefaultTask {
                 try {
                     supportedGroups.addAll(componentsRegistryServiceClient.supportedGroupIds)
                 } catch (Exception e) {
-                    throw new IllegalStateException("Failed to get a successful supported groups response!", e)
+                    throw new IllegalStateException("Failed to get a successful response for supported groups from $componentsRegistryApiUrl!", e)
                 }
             }
 
