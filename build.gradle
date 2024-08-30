@@ -1,6 +1,5 @@
 //
 plugins {
-    id 'org.octopusden.octopus-release-management'
     id 'groovy'
     id 'java-gradle-plugin'
     id 'io.github.gradle-nexus.publish-plugin'
