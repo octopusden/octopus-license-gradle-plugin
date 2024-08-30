@@ -8,8 +8,14 @@ plugins {
 group = 'org.octopusden.octopus'
 description "License gradle plugin"
 
+repositories {
+    mavenCentral()
+    gradlePluginPortal()
+}
+
 dependencies {
     implementation "com.github.node-gradle:gradle-node-plugin:${project.'gradle-node-plugin.version'}"
+    api "org.octopusden.octopus.infrastructure:components-registry-service-client:${project['octopus-components-registry-service.version']}"
 }
 
 gradlePlugin {
@@ -45,6 +51,11 @@ publishing {
     publications {
         mavenJava(MavenPublication) {
             artifactId 'license-gradle-plugin'
+            from components.java
         }
+    }
+
+    repositories {
+        mavenLocal()
     }
 }

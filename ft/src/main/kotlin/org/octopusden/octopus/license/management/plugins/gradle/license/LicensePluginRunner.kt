@@ -58,7 +58,6 @@ fun gradleProcessInstance(init: TestGradleDSL.() -> Unit): Pair<ProcessInstance,
         "-Plicense.skip=false",
         "build",
         "-Plicense-management.version=${System.getenv().getOrDefault("license-management.version", "1.0-SNAPSHOT")}",
-        "-Pcomponent-registry-service-url=${System.getenv().getOrDefault("component-registry-service-url", System.getenv("COMPONENT_REGISTRY_SERVICE_URL"))}",
         "-Psupported-groups=${System.getenv().getOrDefault("supported-groups", System.getenv("SUPPORTED_GROUPS"))}",
         "-Plicense-registry.git-repository=${System.getenv().getOrDefault("license-registry.git-repository", System.getenv("LICENSE_REGISTRY_GIT_REPOSITORY"))}"
     )

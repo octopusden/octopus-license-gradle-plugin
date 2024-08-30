@@ -1,8 +1,9 @@
 package org.octopusden.octopus.license.management.plugins.gradle.tasks
 
+import org.octopusden.octopus.components.registry.client.impl.ClassicComponentsRegistryServiceClient
+import org.octopusden.octopus.components.registry.client.impl.ClassicComponentsRegistryServiceClientUrlProvider
 import org.octopusden.octopus.license.management.plugins.gradle.dto.MavenGAV
 import groovy.json.JsonBuilder
-import groovy.json.JsonSlurper
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
@@ -137,51 +138,48 @@ class LicensedDependenciesAnalyzingTask extends DefaultTask {
             }
 
             def supportedGroups = new HashSet<String>()
+            def hasSupportedGroups = project.hasProperty(SUPPORTED_GROUPS)
+            def hasCrsUrl = project.hasProperty(CRS_URL)
 
-            if (project.hasProperty(SUPPORTED_GROUPS)) {
+            if (hasSupportedGroups && hasCrsUrl) {
+                throw new IllegalArgumentException("Can only 1 property exist: either $SUPPORTED_GROUPS or $CRS_URL, not both.")
+            }
+            if (!hasSupportedGroups && !hasCrsUrl) {
+                throw new IllegalArgumentException("At least one property must exist: $SUPPORTED_GROUPS or $CRS_URL.")
+            }
+
+            if (hasSupportedGroups) {
                 def supportedGroupsString = project.property(SUPPORTED_GROUPS) as String
                 logger.info("Supported groups from property: ${supportedGroupsString}")
                 supportedGroups.addAll(supportedGroupsString.split(",").collect { it.trim() })
             }
 
-            if (project.hasProperty(CRS_URL)) {
-                def url = new URL("${project.property(CRS_URL)}/rest/api/2/common/supported-groups")
-                def connection = (HttpURLConnection) url.openConnection()
-                connection.requestMethod = 'GET'
-
-                logger.info("Requesting supported groups from URL: ${url}")
-
-                def responseCode = connection.getResponseCode()
-
-                if (responseCode == HttpURLConnection.HTTP_OK) {
-                    def inputStream = connection.getInputStream()
-                    def responseText = inputStream.text
-
-                    def jsonSlurper = new JsonSlurper()
-                    def supportedGroupsRes = jsonSlurper.parseText(responseText)
-
-                    if (supportedGroupsRes instanceof List && supportedGroupsRes.every{ it instanceof String }) {
-                        logger.info("Successfully get supported groups from component registry: ${supportedGroupsRes}")
-                        supportedGroups.addAll(supportedGroupsRes)
-                    } else {
-                        logger.error("Unexpected format of supported groups: ${supportedGroupsRes}")
+            if (hasCrsUrl) {
+                def componentsRegistryApiUrl = project.findProperty(CRS_URL).toString()
+                def componentsRegistryServiceClient = new ClassicComponentsRegistryServiceClient(
+                    new ClassicComponentsRegistryServiceClientUrlProvider() {
+                        @Override
+                        String getApiUrl() {
+                            return componentsRegistryApiUrl
+                        }
                     }
-                } else {
-                    logger.error("Failed to get a successful response. HTTP error code: ${responseCode}")
+                )
+                try {
+                    supportedGroups.addAll(componentsRegistryServiceClient.supportedGroupIds)
+                } catch (Exception e) {
+                    throw new IllegalStateException("Failed to get a successful response for supported groups from $componentsRegistryApiUrl!", e)
                 }
-
-                connection.disconnect()
-            } else {
-                logger.warn("There is no component-registry-service-url provided")
             }
 
-            if (supportedGroups.size() > 0) {
-                def builder = new JsonBuilder()
-                supportedGroups.each { group ->
-                    builder(resolvedArtifacts.findAll { !it.getGroup().startsWith(group.toString()) && !it.getGroup().startsWith(group.toString()) }.collect { it })
-                }
-                dependenciesListFile.write(builder.toPrettyString())
+            if (supportedGroups.isEmpty()) {
+                throw new IllegalArgumentException("Can't found any supported groups, please check your $SUPPORTED_GROUPS or $CRS_URL values!")
             }
+
+            def builder = new JsonBuilder()
+            supportedGroups.each { group ->
+                builder(resolvedArtifacts.findAll { !it.getGroup().startsWith(group.toString()) && !it.getGroup().startsWith(group.toString()) }.collect { it })
+            }
+            dependenciesListFile.write(builder.toPrettyString())
         }
         printFoundProblems(resProblemsMessages)
     }

@@ -11,8 +11,7 @@ configurations {
 
 dependencies {
     sshd group: 'org.apache.sshd', name: 'sshd-core', version: '2.6.0'
-    ibm 'com.ibm:com.ibm.ws.sib.client.thin.jms:7.0.0'
-    ibm 'com.ibm.mq:mq:7.0.1.6'
+    ibm 'com.ibm.mq:com.ibm.mq.allclient:9.4.0.0'
 }
 
 task zipDistributive(type:Zip) {
