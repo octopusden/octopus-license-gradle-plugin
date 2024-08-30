@@ -3,12 +3,15 @@ plugins {
     id 'org.octopusden.octopus-release-management'
     id 'groovy'
     id 'java-gradle-plugin'
+    id 'io.github.gradle-nexus.publish-plugin'
+    id 'signing'
 }
 
 group = 'org.octopusden.octopus'
 description "License gradle plugin"
 
 repositories {
+    mavenLocal()
     mavenCentral()
     gradlePluginPortal()
 }
@@ -47,15 +50,63 @@ dependencies {
 
 apply plugin: 'maven-publish'
 
+nexusPublishing {
+    repositories {
+        sonatype {
+            nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
+            snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
+            username.set(System.getenv("MAVEN_USERNAME"))
+            password.set(System.getenv("MAVEN_PASSWORD"))
+        }
+    }
+}
+
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            artifactId 'license-gradle-plugin'
+            artifactId = 'license-gradle-plugin'
             from components.java
+
+            pom {
+                name = 'Octopus License Gradle Plugin'
+                description = 'A plugin for license management in Gradle projects.'
+                url = 'https://github.com/octopusden/octopus-license-gradle-plugin.git'
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'octopus'
+                        name = 'Octopus Team'
+                        email = 'team@octopusden.org'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/octopusden/octopus-license-gradle-plugin.git'
+                    developerConnection = 'scm:git:ssh://github.com/octopusden/octopus-license-gradle-plugin.git'
+                    url = 'https://github.com/octopusden/octopus-license-gradle-plugin'
+                }
+            }
         }
     }
 
     repositories {
         mavenLocal()
+    }
+}
+
+signing {
+    def signingKey = project.findProperty('signingKey')
+    def signingPassword = project.findProperty('signingPassword')
+
+    useInMemoryPgpKeys(signingKey, signingPassword)
+
+    gradle.taskGraph.whenReady { taskGraph ->
+        if (taskGraph.hasTask(':publishToSonatype')) {
+            sign publishing.publications.mavenJava
+        }
     }
 }
