@@ -64,30 +64,6 @@ publishing {
         mavenJava(MavenPublication) {
             artifactId = 'license-gradle-plugin'
             from components.java
-
-            pom {
-                name = 'Octopus License Gradle Plugin'
-                description = 'A plugin for license management in Gradle projects.'
-                url = 'https://github.com/octopusden/octopus-license-gradle-plugin.git'
-                licenses {
-                    license {
-                        name = 'The Apache License, Version 2.0'
-                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                    }
-                }
-                developers {
-                    developer {
-                        id = 'octopus'
-                        name = 'Octopus Team'
-                        email = 'team@octopusden.org'
-                    }
-                }
-                scm {
-                    connection = 'scm:git:git://github.com/octopusden/octopus-license-gradle-plugin.git'
-                    developerConnection = 'scm:git:ssh://github.com/octopusden/octopus-license-gradle-plugin.git'
-                    url = 'https://github.com/octopusden/octopus-license-gradle-plugin'
-                }
-            }
         }
     }
 }
