@@ -10,7 +10,6 @@ group = 'org.octopusden.octopus'
 description "License gradle plugin"
 
 repositories {
-    mavenLocal()
     mavenCentral()
     gradlePluginPortal()
 }
