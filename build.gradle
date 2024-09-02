@@ -2,6 +2,7 @@
 plugins {
     id 'groovy'
     id 'java-gradle-plugin'
+    id 'maven-publish'
     id 'io.github.gradle-nexus.publish-plugin'
     id 'signing'
 }
@@ -46,8 +47,6 @@ dependencies {
     api group: 'com.platformlib', name: 'platformlib-process-local', version: project['platformlib-process.version']
 }
 
-apply plugin: 'maven-publish'
-
 nexusPublishing {
     repositories {
         sonatype {
@@ -62,8 +61,28 @@ nexusPublishing {
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            artifactId = 'license-gradle-plugin'
             from components.java
+            pom {
+                name = 'Octopus License Gradle Plugin'
+                description = 'A plugin for license management in Gradle projects.'
+                url = 'https://github.com/octopusden/octopus-license-gradle-plugin.git'
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                scm {
+                    url = 'https://github.com/octopusden/octopus-license-gradle-plugin.git'
+                    connection = 'scm:git://github.com/octopusden/octopus-license-gradle-plugin.git'
+                }
+                developers {
+                    developer {
+                        id = 'octopus'
+                        name = 'octopus'
+                    }
+                }
+            }
         }
     }
 }
