@@ -34,7 +34,7 @@ jobs:
             ${{ runner.os }}-m2-
 
       - name: Publish to Maven Local
-        run: ./gradlew build publishAllPublicationsToMavenLocalRepository
+        run: ./gradlew build publishToMavenLocal
 
       - name: Run tests
         env:
