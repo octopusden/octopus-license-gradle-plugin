@@ -1,6 +1,5 @@
 //
 plugins {
-    id 'java-library'
     id 'groovy'
     id 'java-gradle-plugin'
     id 'maven-publish'
@@ -98,6 +97,17 @@ signing {
     gradle.taskGraph.whenReady { taskGraph ->
         if (!taskGraph.hasTask(':publishToMavenLocal')) {
             sign publishing.publications.mavenJava
+        }
+    }
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            pluginMaven(MavenPublication) {
+                // Skip publishing by doing nothing or configuring it conditionally
+                artifacts.removeAll {}
+            }
         }
     }
 }
