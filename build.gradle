@@ -93,8 +93,12 @@ nexusPublishing {
 signing {
     def signingKey = project.findProperty('signingKey')
     def signingPassword = project.findProperty('signingPassword')
-    useInMemoryPgpKeys(signingKey, signingPassword)
-    sign publishing.publications.mavenJava
+    if (signingKey && signingPassword) {
+        useInMemoryPgpKeys(signingKey, signingPassword)
+        sign publishing.publications.mavenJava
+    } else {
+        logger.lifecycle("Signing keys or passwords are not provided. Skipping signing.")
+    }
 }
 
 gradlePlugin { automatedPublishing = false }
