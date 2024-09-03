@@ -1,4 +1,3 @@
-//
 plugins {
     id 'groovy'
     id 'java-gradle-plugin'
@@ -7,6 +6,7 @@ plugins {
     id 'signing'
 }
 
+version = project.findProperty('buildVersion') ?: System.getenv("BUILD_VERSION") ?: '1.0-SNAPSHOT'
 group = 'org.octopusden.octopus'
 description "License gradle plugin"
 
@@ -18,42 +18,62 @@ repositories {
 dependencies {
     implementation "com.github.node-gradle:gradle-node-plugin:${project.'gradle-node-plugin.version'}"
     api "org.octopusden.octopus.infrastructure:components-registry-service-client:${project['octopus-components-registry-service.version']}"
+    api group: 'com.platformlib', name: 'platformlib-process-local', version: project['platformlib-process.version']
 }
 
 gradlePlugin {
     plugins {
         LicenseGradlePlugin {
             id = 'org.octopusden.octopus.license-management'
+            displayName = 'org.octopusden.octopus.license-management'
+            description = 'Octopus module for license gradle plugin'
             implementationClass = 'org.octopusden.octopus.license.management.plugins.gradle.LicenseGradlePlugin'
         }
     }
 }
 
+def resourceDir = "${buildDir}/generated/resources"
+
 sourceSets {
     main {
         java { srcDirs = [] }    // no source dirs for the java compiler
         groovy { srcDirs = ["src/main/groovy", "src/main/java"] }  // compile   everything in src/ with groovy
+        resources {
+            srcDirs += [resourceDir]
+        }
     }
 }
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
-
 java{
+    targetCompatibility = JavaVersion.VERSION_1_8
+    sourceCompatibility = JavaVersion.VERSION_1_8
     withJavadocJar()
     withSourcesJar()
 }
 
-dependencies {
-    api group: 'com.platformlib', name: 'platformlib-process-local', version: project['platformlib-process.version']
+apply plugin: 'maven-publish'
+
+nexusPublishing {
+    repositories {
+        sonatype {
+            nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
+            snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
+            username.set(System.getenv("MAVEN_USERNAME"))
+            password.set(System.getenv("MAVEN_PASSWORD"))
+        }
+    }
+    transitionCheckOptions {
+        maxRetries.set(60)
+        delayBetween.set(Duration.ofSeconds(30))
+    }
 }
 
 publishing {
     publications {
-        pluginMaven(MavenPublication) {
+        withType(MavenPublication) {
             pom {
-                name = "license-gradle-plugin"
-                description = "Octopus module: license-gradle-plugin"
+                name = project.name
+                description = "Octopus module for license gradle plugin"
                 url = "https://github.com/octopusden/octopus-license-gradle-plugin.git"
                 licenses {
                     license {
@@ -61,41 +81,26 @@ publishing {
                         url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
                     }
                 }
+                scm {
+                    url = "https://github.com/octopusden/octopus-license-gradle-plugin.git"
+                    connection = "scm:git://github.com/octopusden/octopus-license-gradle-plugin.git"
+                }
                 developers {
                     developer {
                         id = "octopus"
                         name = "octopus"
-                        email = "octopus@org.com"
                     }
-                }
-                scm {
-                    connection = "scm:git://github.com/octopusden/octopus-license-gradle-plugin.git"
-                    developerConnection = "scm:git://github.com/octopusden/octopus-license-gradle-plugin.git"
-                    url = "https://github.com/octopusden/octopus-license-gradle-plugin.git"
                 }
             }
         }
     }
 }
 
-nexusPublishing {
-    repositories {
-        sonatype {
-            nexusUrl = uri("https://s01.oss.sonatype.org/service/local/")
-            snapshotRepositoryUrl = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
-            username = System.getenv("MAVEN_USERNAME")
-            password = System.getenv("MAVEN_PASSWORD")
-        }
-    }
-}
-
-signing {
-    def signingKey = project.findProperty('signingKey')
-    def signingPassword = project.findProperty('signingPassword')
-    if (signingKey && signingPassword) {
+if (project.hasProperty("nexus") && !project.version.toString().toUpperCase().endsWith("SNAPSHOT")) {
+    signing {
+        sign publishing.publications
+        def signingKey = findProperty("signingKey")
+        def signingPassword = findProperty("signingPassword")
         useInMemoryPgpKeys(signingKey, signingPassword)
-        sign publishing.publications.pluginMaven
-    } else {
-        logger.lifecycle("Signing keys or passwords are not provided. Skipping signing.")
     }
 }
