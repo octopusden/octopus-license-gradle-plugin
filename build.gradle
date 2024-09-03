@@ -1,5 +1,6 @@
 //
 plugins {
+    id 'java-library'
     id 'groovy'
     id 'java-gradle-plugin'
     id 'maven-publish'
@@ -53,8 +54,8 @@ publishing {
         mavenJava(MavenPublication) {
             from(components.java)
             pom {
-                name = "$project.name"
-                description = "Octopus module: $project.name)"
+                name = "license-gradle-plugin"
+                description = "Octopus module: license-gradle-plugin"
                 url = "https://github.com/octopusden/octopus-license-gradle-plugin.git"
                 licenses {
                     license {
@@ -62,15 +63,15 @@ publishing {
                         url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
                     }
                 }
-                scm {
-                    url = "https://github.com/octopusden/octopus-license-gradle-plugin.git"
-                    connection = "scm:git://github.com/octopusden/octopus-license-gradle-plugin.git"
-                }
                 developers {
                     developer {
                         id = "octopus"
                         name = "octopus"
                     }
+                }
+                scm {
+                    connection = "scm:git://github.com/octopusden/octopus-license-gradle-plugin.git"
+                    url = "https://github.com/octopusden/octopus-license-gradle-plugin.git"
                 }
             }
         }
