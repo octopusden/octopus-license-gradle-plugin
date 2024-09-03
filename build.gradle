@@ -8,7 +8,8 @@ plugins {
 
 version = project.findProperty('buildVersion') ?: System.getenv("BUILD_VERSION") ?: '1.0-SNAPSHOT'
 group = 'org.octopusden.octopus'
-description "License gradle plugin"
+
+description 'Octopus module for license gradle plugin'
 
 repositories {
     mavenCentral()
@@ -18,7 +19,7 @@ repositories {
 dependencies {
     implementation "com.github.node-gradle:gradle-node-plugin:${project.'gradle-node-plugin.version'}"
     api "org.octopusden.octopus.infrastructure:components-registry-service-client:${project['octopus-components-registry-service.version']}"
-    api group: 'com.platformlib', name: 'platformlib-process-local', version: project['platformlib-process.version']
+    api "com.platformlib:platformlib-process-local:${project['platformlib-process.version']}"
 }
 
 gradlePlugin {
