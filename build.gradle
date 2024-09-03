@@ -50,8 +50,7 @@ dependencies {
 
 publishing {
     publications {
-        mavenJava(MavenPublication) {
-            from(components.java)
+        pluginMaven(MavenPublication) {
             pom {
                 name = "license-gradle-plugin"
                 description = "Octopus module: license-gradle-plugin"
@@ -95,7 +94,7 @@ signing {
     def signingPassword = project.findProperty('signingPassword')
     if (signingKey && signingPassword) {
         useInMemoryPgpKeys(signingKey, signingPassword)
-        sign publishing.publications.mavenJava
+        sign publishing.publications.pluginMaven
     } else {
         logger.lifecycle("Signing keys or passwords are not provided. Skipping signing.")
     }
