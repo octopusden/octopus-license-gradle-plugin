@@ -12,7 +12,6 @@ description "License gradle plugin"
 
 repositories {
     mavenCentral()
-    gradlePluginPortal()
 }
 
 dependencies {
@@ -40,6 +39,7 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 java{
+    withJavadocJar()
     withSourcesJar()
 }
 
