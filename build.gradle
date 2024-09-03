@@ -66,10 +66,12 @@ publishing {
                     developer {
                         id = "octopus"
                         name = "octopus"
+                        email = "octopus@org.com"
                     }
                 }
                 scm {
                     connection = "scm:git://github.com/octopusden/octopus-license-gradle-plugin.git"
+                    developerConnection = "scm:git://github.com/octopusden/octopus-license-gradle-plugin.git"
                     url = "https://github.com/octopusden/octopus-license-gradle-plugin.git"
                 }
             }
