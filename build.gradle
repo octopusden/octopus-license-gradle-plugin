@@ -100,5 +100,3 @@ signing {
         logger.lifecycle("Signing keys or passwords are not provided. Skipping signing.")
     }
 }
-
-gradlePlugin { automatedPublishing = false }
