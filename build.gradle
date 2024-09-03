@@ -12,6 +12,7 @@ description "License gradle plugin"
 
 repositories {
     mavenCentral()
+    gradlePluginPortal()
 }
 
 dependencies {
