@@ -101,13 +101,4 @@ signing {
     }
 }
 
-afterEvaluate {
-    publishing {
-        publications {
-            pluginMaven(MavenPublication) {
-                // Skip publishing by doing nothing or configuring it conditionally
-                artifacts.removeAll {}
-            }
-        }
-    }
-}
+gradlePlugin { automatedPublishing = false }
