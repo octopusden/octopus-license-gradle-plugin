@@ -6,9 +6,7 @@ plugins {
     id 'signing'
 }
 
-version = project.findProperty('buildVersion') ?: System.getenv("BUILD_VERSION") ?: '1.0-SNAPSHOT'
 group = 'org.octopusden.octopus'
-
 description 'Octopus module for license gradle plugin'
 
 repositories {
