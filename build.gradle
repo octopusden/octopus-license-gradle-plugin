@@ -1,13 +1,13 @@
-//
 plugins {
     id 'groovy'
     id 'java-gradle-plugin'
+    id 'maven-publish'
     id 'io.github.gradle-nexus.publish-plugin'
     id 'signing'
 }
 
 group = 'org.octopusden.octopus'
-description "License gradle plugin"
+description 'Octopus module for license gradle plugin'
 
 repositories {
     mavenCentral()
@@ -17,33 +17,37 @@ repositories {
 dependencies {
     implementation "com.github.node-gradle:gradle-node-plugin:${project.'gradle-node-plugin.version'}"
     api "org.octopusden.octopus.infrastructure:components-registry-service-client:${project['octopus-components-registry-service.version']}"
+    api "com.platformlib:platformlib-process-local:${project['platformlib-process.version']}"
 }
 
 gradlePlugin {
     plugins {
         LicenseGradlePlugin {
             id = 'org.octopusden.octopus.license-management'
+            displayName = 'org.octopusden.octopus.license-management'
+            description = 'Octopus module for license gradle plugin'
             implementationClass = 'org.octopusden.octopus.license.management.plugins.gradle.LicenseGradlePlugin'
         }
     }
 }
 
+def resourceDir = "${buildDir}/generated/resources"
+
 sourceSets {
     main {
         java { srcDirs = [] }    // no source dirs for the java compiler
         groovy { srcDirs = ["src/main/groovy", "src/main/java"] }  // compile   everything in src/ with groovy
+        resources {
+            srcDirs += [resourceDir]
+        }
     }
 }
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
-
 java{
+    targetCompatibility = JavaVersion.VERSION_1_8
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    withJavadocJar()
     withSourcesJar()
-}
-
-dependencies {
-    api group: 'com.platformlib', name: 'platformlib-process-local', version: project['platformlib-process.version']
 }
 
 apply plugin: 'maven-publish'
@@ -57,35 +61,34 @@ nexusPublishing {
             password.set(System.getenv("MAVEN_PASSWORD"))
         }
     }
+    transitionCheckOptions {
+        maxRetries.set(60)
+        delayBetween.set(Duration.ofSeconds(30))
+    }
 }
 
 publishing {
     publications {
-        mavenJava(MavenPublication) {
-            artifactId = 'license-gradle-plugin'
-            from components.java
-
+        withType(MavenPublication) {
             pom {
-                name = 'Octopus License Gradle Plugin'
-                description = 'A plugin for license management in Gradle projects.'
-                url = 'https://github.com/octopusden/octopus-license-gradle-plugin.git'
+                name = project.name
+                description = "Octopus module for license gradle plugin"
+                url = "https://github.com/octopusden/octopus-license-gradle-plugin.git"
                 licenses {
                     license {
-                        name = 'The Apache License, Version 2.0'
-                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                    }
-                }
-                developers {
-                    developer {
-                        id = 'octopus'
-                        name = 'Octopus Team'
-                        email = 'team@octopusden.org'
+                        name = "The Apache License, Version 2.0"
+                        url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
                     }
                 }
                 scm {
-                    connection = 'scm:git:git://github.com/octopusden/octopus-license-gradle-plugin.git'
-                    developerConnection = 'scm:git:ssh://github.com/octopusden/octopus-license-gradle-plugin.git'
-                    url = 'https://github.com/octopusden/octopus-license-gradle-plugin'
+                    url = "https://github.com/octopusden/octopus-license-gradle-plugin.git"
+                    connection = "scm:git://github.com/octopusden/octopus-license-gradle-plugin.git"
+                }
+                developers {
+                    developer {
+                        id = "octopus"
+                        name = "octopus"
+                    }
                 }
             }
         }
@@ -93,14 +96,10 @@ publishing {
 }
 
 signing {
-    def signingKey = project.findProperty('signingKey')
-    def signingPassword = project.findProperty('signingPassword')
-
+    required = System.getenv().containsKey("ORG_GRADLE_PROJECT_signingKey")
+            && System.getenv().containsKey("ORG_GRADLE_PROJECT_signingPassword")
+    sign publishing.publications
+    def signingKey = findProperty("signingKey")
+    def signingPassword = findProperty("signingPassword")
     useInMemoryPgpKeys(signingKey, signingPassword)
-
-    gradle.taskGraph.whenReady { taskGraph ->
-        if (taskGraph.hasTask(':publishToSonatype')) {
-            sign publishing.publications.mavenJava
-        }
-    }
 }
