@@ -97,11 +97,11 @@ publishing {
     }
 }
 
-if (project.hasProperty("nexus") && !project.version.toString().toUpperCase().endsWith("SNAPSHOT")) {
-    signing {
-        sign publishing.publications
-        def signingKey = findProperty("signingKey")
-        def signingPassword = findProperty("signingPassword")
-        useInMemoryPgpKeys(signingKey, signingPassword)
-    }
+signing {
+    required = System.getenv().containsKey("ORG_GRADLE_PROJECT_signingKey")
+            && System.getenv().containsKey("ORG_GRADLE_PROJECT_signingPassword")
+    sign publishing.publications
+    def signingKey = findProperty("signingKey")
+    def signingPassword = findProperty("signingPassword")
+    useInMemoryPgpKeys(signingKey, signingPassword)
 }
