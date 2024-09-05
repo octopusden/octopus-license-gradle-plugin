@@ -120,9 +120,6 @@ class LicenseGradlePlugin implements Plugin<Project> {
         }
         Task processLicenses = project.getTasks().create(processLicensesTaskName, LicenseTask.class)
         processLicenses.dependsOn(processLicensedDependencies)
-        println("Check license.skip property")
-        println(project.findProperty("license.skip"))
-        println(MavenLicenseParameters.getProjectProperty(project, "license.skip"))
         processLicenses.onlyIf {
             "false".equalsIgnoreCase(project.findProperty("license.skip") as String ?: "true") ||
                     "false".equalsIgnoreCase(MavenLicenseParameters.getProjectProperty(project, "license.skip") ?: "true")
