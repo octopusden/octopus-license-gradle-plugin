@@ -52,7 +52,7 @@ fun gradleProcessInstance(init: TestGradleDSL.() -> Unit): Pair<ProcessInstance,
         System.getenv().getOrDefault(LICENSE_REGISTRY_GIT_REPOSITORY_PROPERTY,
             System.getenv(LICENSE_REGISTRY_GIT_REPOSITORY_PROPERTY.uppercase().replace(Regex("[.-]"), "_"))))
 
-    val licenseMavenPluginVersion = System.getenv().getOrDefault("octopus-license-maven-plugin.version", "2.0.3")
+    val licenseMavenPluginVersion = System.getenv().getOrDefault("octopus-license-maven-plugin.version", "2.0.8")
     val supportedGroups = System.getenv().getOrDefault("supported-groups", System.getenv("SUPPORTED_GROUPS"))
     val licenseRegistryGitRepository = System.getenv().getOrDefault("license-registry.git-repository", System.getenv("LICENSE_REGISTRY_GIT_REPOSITORY"))
 
