@@ -10,7 +10,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.util.GradleVersion
-import org.octopusden.octopus.license.management.plugins.gradle.utils.MavenLicenseParameters
+import org.octopusden.octopus.license.management.plugins.gradle.utils.MavenParametersUtils
 
 class LicenseGradlePlugin implements Plugin<Project> {
 
