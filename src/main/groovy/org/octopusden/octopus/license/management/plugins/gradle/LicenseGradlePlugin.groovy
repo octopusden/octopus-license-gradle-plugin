@@ -122,7 +122,7 @@ class LicenseGradlePlugin implements Plugin<Project> {
         processLicenses.dependsOn(processLicensedDependencies)
         processLicenses.onlyIf {
             "false".equalsIgnoreCase(project.findProperty("license.skip") as String ?: "true") ||
-                    "false".equalsIgnoreCase(MavenLicenseParameters.getProjectProperty(project, "license.skip") ?: "true")
+                    "false".equalsIgnoreCase(MavenParametersUtils.getProjectProperty(project, "license.skip") ?: "true")
         }
     }
 }

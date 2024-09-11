@@ -24,7 +24,7 @@ import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.DefaultTask
-import org.octopusden.octopus.license.management.plugins.gradle.utils.MavenLicenseParameters
+import org.octopusden.octopus.license.management.plugins.gradle.utils.MavenParametersUtils
 
 class ProcessNpmLicensesTask extends DefaultTask {
 
@@ -38,7 +38,7 @@ class ProcessNpmLicensesTask extends DefaultTask {
     public final static String EOL = System.properties.'line.separator'
 
     public final String licenseRegistryGitRepository = project.findProperty(LICENSE_REGISTRY_GIT_REPOSITORY_PROPERTY_NAME) ?:
-            MavenLicenseParameters.getProjectProperty(project, LICENSE_REGISTRY_GIT_REPOSITORY_PROPERTY_NAME)
+            MavenParametersUtils.getProjectProperty(project, LICENSE_REGISTRY_GIT_REPOSITORY_PROPERTY_NAME)
 
     static File getWorkingDir(Project project) { return project.node.nodeProjectDir.get().asFile }
 

@@ -2,7 +2,7 @@ package org.octopusden.octopus.license.management.plugins.gradle.utils
 
 import org.gradle.api.Project
 
-class MavenLicenseParameters {
+class MavenParametersUtils {
     static String getProjectProperty(Project project, String key) {
         def mavenLicenseParametersProp = project.findProperty("maven-license-parameters")
         if (mavenLicenseParametersProp != null) {

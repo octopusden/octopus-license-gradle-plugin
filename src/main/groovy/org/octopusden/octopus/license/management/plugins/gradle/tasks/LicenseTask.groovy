@@ -2,7 +2,7 @@ package org.octopusden.octopus.license.management.plugins.gradle.tasks
 
 import org.octopusden.octopus.license.management.plugins.gradle.dto.ArtifactGAV
 import org.octopusden.octopus.license.management.plugins.gradle.dto.MavenGAV
-import org.octopusden.octopus.license.management.plugins.gradle.utils.MavenLicenseParameters
+import org.octopusden.octopus.license.management.plugins.gradle.utils.MavenParametersUtils
 
 import com.platformlib.process.local.factory.LocalProcessBuilderFactory
 import groovy.json.JsonSlurper
@@ -52,7 +52,7 @@ class LicenseTask extends DefaultTask {
         }.toSet()
 
         def octopusLicenseMavenPluginVersion = project.findProperty("octopus-license-maven-plugin.version")
-                ?: MavenLicenseParameters.getProjectProperty(project, "octopus-license-maven-plugin.version")
+                ?: MavenParametersUtils.getProjectProperty(project, "octopus-license-maven-plugin.version")
 
         if (!octopusLicenseMavenPluginVersion) {
             throw new IllegalArgumentException("Property 'octopus-license-maven-plugin.version' must be specified")
