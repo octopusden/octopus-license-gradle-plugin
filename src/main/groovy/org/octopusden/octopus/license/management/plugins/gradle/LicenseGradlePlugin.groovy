@@ -40,7 +40,7 @@ class LicenseGradlePlugin implements Plugin<Project> {
 
     private boolean isFalse(Project project, String property) {
         return 'false'.equalsIgnoreCase(project.rootProject.findProperty(property) as String ?: 'true') ||
-                'false'.equalsIgnoreCase(MavenLicenseParameters.getProjectProperty(project, property) ?: 'true')
+                'false'.equalsIgnoreCase(MavenParametersUtils.getProjectProperty(project, property) ?: 'true')
     }
 
     private boolean nodeOnlyIf(Project project) {
