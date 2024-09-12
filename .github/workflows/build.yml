@@ -1,44 +1,10 @@
-name: Gradle Build & UT
+name: Gradle Compile & UT
 
 on: [push, pull_request, workflow_dispatch]
 
 jobs:
-  build_and_test:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Set up Java
-        uses: actions/setup-java@v3
-        with:
-          java-version: '8'
-          distribution: 'adopt'
-          cache: 'gradle'
-
-      - name: Validate Gradle wrapper
-        uses: gradle/wrapper-validation-action@v1
-
-      - name: Set up init.gradle
-        run: |
-          mkdir -p ~/.gradle
-          cp ./init.gradle ~/.gradle/init.gradle
-
-      - name: Cache local Maven repository
-        uses: actions/cache@v2
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-m2-
-
-      - name: Publish to Maven Local
-        run: ./gradlew build publishToMavenLocal
-
-      - name: Run tests
-        env:
-          LICENSE_REGISTRY_GIT_REPOSITORY: "https://github.com/octopusden/octopus-test-license-registry.git"
-          SUPPORTED_GROUPS: "org.octopusden.octopus"
-        working-directory: ft
-        run: ./gradlew test --info -s
+  run-build-and-deploy:
+    uses: octopusden/octopus-base/.github/workflows/common-java-gradle-build.yml@v2.1.7
+    with:
+      flow-type: hybrid
+      java-version: '8'
