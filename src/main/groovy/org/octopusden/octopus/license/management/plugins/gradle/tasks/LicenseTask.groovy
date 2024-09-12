@@ -126,7 +126,7 @@ class LicenseTask extends DefaultTask {
             }
 
             String licenseArgs
-            def mavenParameters = project.findProperty("maven-license-parameters")
+            def mavenParameters = project.findProperty(MavenParametersUtils.MAVEN_LICENSE_PARAMETERS)
             if (mavenParameters != null) {
                 LOGGER.info("Maven license parameters: $mavenParameters")
                 licenseArgs = mavenParameters.toString().replaceAll(/^['"]|['"]$/, '')

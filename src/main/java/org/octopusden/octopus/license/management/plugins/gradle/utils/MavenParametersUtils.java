@@ -2,7 +2,13 @@ package org.octopusden.octopus.license.management.plugins.gradle.utils;
 
 import org.gradle.api.Project;
 
-public class MavenParametersUtils {
+public final class MavenParametersUtils {
+    public static final String MAVEN_LICENSE_PARAMETERS = "maven-license-parameters";
+
+    private MavenParametersUtils() {
+        throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+    }
+
     public static String getProjectProperty(Project project, String key) {
         Object mavenLicenseParametersProp = project.findProperty("maven-license-parameters");
         if (mavenLicenseParametersProp != null) {
