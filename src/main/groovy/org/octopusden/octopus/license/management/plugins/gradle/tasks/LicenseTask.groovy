@@ -2,6 +2,7 @@ package org.octopusden.octopus.license.management.plugins.gradle.tasks
 
 import org.octopusden.octopus.license.management.plugins.gradle.dto.ArtifactGAV
 import org.octopusden.octopus.license.management.plugins.gradle.dto.MavenGAV
+import org.octopusden.octopus.license.management.plugins.gradle.utils.MavenParametersUtils
 
 import com.platformlib.process.local.factory.LocalProcessBuilderFactory
 import groovy.json.JsonSlurper
@@ -18,7 +19,6 @@ import java.util.concurrent.CopyOnWriteArrayList
 
 class LicenseTask extends DefaultTask {
     private static final Logger LOGGER = LoggerFactory.getLogger(LicenseTask.class)
-    private static final String DEFAULT_LICENSE_MAVEN_PLUGIN_VERSION = "2.0.3"
 
     @Input
     String sourceDependencies = "build/dependencies.json"
@@ -51,6 +51,13 @@ class LicenseTask extends DefaultTask {
             )
         }.toSet()
 
+        def octopusLicenseMavenPluginVersion = project.findProperty("octopus-license-maven-plugin.version")
+                ?: MavenParametersUtils.getProjectProperty(project, "octopus-license-maven-plugin.version")
+
+        if (!octopusLicenseMavenPluginVersion) {
+            throw new IllegalArgumentException("Property 'octopus-license-maven-plugin.version' must be specified")
+        }
+
         licensesPom.withWriter {writer ->
             def markupBuilder = new MarkupBuilder(writer)
             markupBuilder.project {
@@ -63,7 +70,7 @@ class LicenseTask extends DefaultTask {
                         plugin {
                             groupId("org.octopusden.octopus")
                             artifactId("license-maven-plugin")
-                            version(octopusLicenseMavenPluginVersion())
+                            version(octopusLicenseMavenPluginVersion)
                             configuration {
                                 acceptPomPackaging("true")
                                 excludedScopes("test,provided")
@@ -117,9 +124,31 @@ class LicenseTask extends DefaultTask {
             } else {
                 command = "$mavenHome/bin/mvn"
             }
-            def licenseRegistryGitRepository = project.findProperty("license-registry.git-repository")
-            if (licenseRegistryGitRepository == null) {
-                throw new IllegalArgumentException("Property 'license-registry.git-repository' must be specified")
+
+            String licenseArgs
+            def mavenParameters = project.findProperty(MavenParametersUtils.MAVEN_LICENSE_PARAMETERS)
+            if (mavenParameters != null) {
+                LOGGER.info("Maven license parameters: $mavenParameters")
+                licenseArgs = mavenParameters.toString().replaceAll(/^['"]|['"]$/, '')
+                licenseArgs += " -Dlicense.output.directory=${licensesDirectory.toPath().toAbsolutePath().normalize()}"
+            } else {
+                LOGGER.warn(("You're using a legacy method for parameter configuration that could be deleted in future. Please wrap all of the parameters in the 'maven-license-parameters'"))
+                def licenseRegistryGitRepository = project.findProperty("license-registry.git-repository")
+                if (licenseRegistryGitRepository == null) {
+                    throw new IllegalArgumentException("Property 'license-registry.git-repository' must be specified")
+                }
+                licenseArgs = """
+                        -Doctopus-license-maven-plugin.version=${octopusLicenseMavenPluginVersion},
+                        -Dlicense.skip=false,
+                        -Dlicense.includeTransitiveDependencies=false,
+                        -Dlicense-registry.git-repository=${licenseRegistryGitRepository},
+                        -Dlicense.failOnMissing=${(project.findProperty("license-fail-missing") ?: "true")},
+                        -Dlicense.failOnBlacklist=${(project.findProperty("license-fail-on-black-list") ?: "true")},
+                        -Dlicense.output.directory=${licensesDirectory.toPath().toAbsolutePath().normalize()},
+                        -Dlicense.includedDependenciesWhitelist=${(project.findProperty("license-deps-whitelist") ?: "")},
+                        -Dlicense.failOnNotWhitelistedDependency=${(project.findProperty("license-fail-on-not-whitelisted-dep") ?: "false")},
+                        -Dlicense.fileWhitelist=${(project.findProperty("license-file-whitelist") ?: "licenses-whitelist.txt")}
+                """
             }
             def processInstance = LocalProcessBuilderFactory.newLocalProcessBuilder()
                     .command(command)
@@ -142,16 +171,7 @@ class LicenseTask extends DefaultTask {
                         licensesPom.toPath().toAbsolutePath().normalize(),
                         "-B",
                         "-Pnexus-staging",
-                        "-Doctopus-license-maven-plugin.version=" + octopusLicenseMavenPluginVersion(),
-                        "-Dlicense.skip=false",
-                        "-Dlicense.includeTransitiveDependencies=false",
-                        "-Dlicense-registry.git-repository=" + licenseRegistryGitRepository,
-                        "-Dlicense.failOnMissing=" + (project.findProperty("license-fail-missing") ?: "true"),
-                        "-Dlicense.failOnBlacklist=" + (project.findProperty("license-fail-on-black-list") ?: "true"),
-                        "-Dlicense.output.directory=" + licensesDirectory.toPath().toAbsolutePath().normalize(),
-                        "-Dlicense.includedDependenciesWhitelist=" + (project.findProperty("license-deps-whitelist") ?: ""),
-                        "-Dlicense.failOnNotWhitelistedDependency=" + (project.findProperty("license-fail-on-not-whitelisted-dep") ?: "false"),
-                        "-Dlicense.fileWhitelist=" + (project.findProperty("license-file-whitelist") ?: "licenses-whitelist.txt"),
+                        *licenseArgs.split(" "),
                         "generate-resources").toCompletableFuture().get()
             def retCode = processInstance.exitCode
             project.file("build/licenses-mvn.log").text = output.join('\n')
@@ -162,10 +182,6 @@ class LicenseTask extends DefaultTask {
                 throw new GradleException("Fail to execute maven command $retCode:\n\t" + String.join( '\n\t', processInstance.stdErr))
             }
         }
-    }
-
-    String octopusLicenseMavenPluginVersion() {
-        return project.findProperty("octopus-license-maven-plugin.version") ?: DEFAULT_LICENSE_MAVEN_PLUGIN_VERSION
     }
 
 }

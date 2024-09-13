@@ -26,6 +26,10 @@ dependencies {
     implementation "com.github.node-gradle:gradle-node-plugin:${project.'gradle-node-plugin.version'}"
     api "org.octopusden.octopus.infrastructure:components-registry-service-client:${project['octopus-components-registry-service.version']}"
     api "com.platformlib:platformlib-process-local:${project['platformlib-process.version']}"
+
+    testImplementation "org.junit.jupiter:junit-jupiter-api:${project['junit-jupiter-api.version']}"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${project['junit-jupiter-engine.version']}"
+    testImplementation "org.mockito:mockito-core:${project['mockito-core.version']}"
 }
 
 gradlePlugin {
@@ -134,6 +138,10 @@ signing {
     def signingKey = findProperty("signingKey")
     def signingPassword = findProperty("signingPassword")
     useInMemoryPgpKeys(signingKey, signingPassword)
+}
+
+test {
+    useJUnitPlatform()
 }
 
 if (!escrowBuild) {
