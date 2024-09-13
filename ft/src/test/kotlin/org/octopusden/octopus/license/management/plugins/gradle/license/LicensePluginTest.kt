@@ -89,7 +89,7 @@ class LicensePluginTest {
             testProjectName = "ibm-libraries"
         }
         assertNotEquals(0, instance.exitCode)
-        assertThat(instance.stdErr).contains("[WARNING] License \"IBM International Program License Agreement\" used by 1 dependencies:")
+        assertThat(instance.stdErr).contains("[ERROR] License \"IBM International Program License Agreement\" used by 1 dependencies:")
         val projectPath = gradle {
             testProjectName = "ibm-libraries"
             additionalArguments = arrayOf("-PexcludeIbmGroups")

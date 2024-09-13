@@ -10,6 +10,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.util.GradleVersion
+import org.octopusden.octopus.license.management.plugins.gradle.utils.MavenParametersUtils
 
 class LicenseGradlePlugin implements Plugin<Project> {
 
@@ -37,12 +38,13 @@ class LicenseGradlePlugin implements Plugin<Project> {
         }
     }
 
-    private boolean isTrue(Project project, String property) {
-        return 'true'.equalsIgnoreCase(project.rootProject.findProperty(property) as String ?: 'true')
+    private boolean isFalse(Project project, String property) {
+        return 'false'.equalsIgnoreCase(project.rootProject.findProperty(property) as String ?: 'true') ||
+                'false'.equalsIgnoreCase(MavenParametersUtils.getProjectProperty(project, property) ?: 'true')
     }
 
     private boolean nodeOnlyIf(Project project) {
-        return !isTrue(project, 'license.skip') && !isTrue(project, NODE_SKIP_PROPERTY) && !project.gradle.startParameter.offline
+        return isFalse(project, 'license.skip') && isFalse(project, NODE_SKIP_PROPERTY) && !project.gradle.startParameter.offline
     }
 
     private String getEnvPath(Project project) {
@@ -119,7 +121,8 @@ class LicenseGradlePlugin implements Plugin<Project> {
         Task processLicenses = project.getTasks().create(processLicensesTaskName, LicenseTask.class)
         processLicenses.dependsOn(processLicensedDependencies)
         processLicenses.onlyIf {
-            "false".equalsIgnoreCase(project.findProperty("license.skip") as String ?: "true")
+            "false".equalsIgnoreCase(project.findProperty("license.skip") as String ?: "true") ||
+                    "false".equalsIgnoreCase(MavenParametersUtils.getProjectProperty(project, "license.skip") ?: "true")
         }
     }
 }
