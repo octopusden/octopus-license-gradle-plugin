@@ -141,9 +141,6 @@ signing {
 
 test {
     useJUnitPlatform()
-    if (project.hasProperty('excludeTests')) {
-        exclude project.property('excludeTests')
-    }
 }
 
 if (!escrowBuild) {
