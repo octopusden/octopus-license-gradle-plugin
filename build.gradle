@@ -55,7 +55,7 @@ sourceSets {
     }
 }
 
-java{
+java {
     targetCompatibility = JavaVersion.VERSION_1_8
     sourceCompatibility = JavaVersion.VERSION_1_8
     withJavadocJar()
@@ -142,6 +142,9 @@ signing {
 
 test {
     useJUnitPlatform()
+    if (project.hasProperty('excludeTests')) {
+        exclude project.property('excludeTests')
+    }
 }
 
 if (!escrowBuild) {
