@@ -10,11 +10,6 @@ plugins {
 group = 'org.octopusden.octopus'
 description 'Octopus module for license gradle plugin'
 
-ext {
-    m2localPath = project.hasProperty('m2_local') ? new File(m2_local).toURI().toURL().toString().replaceAll(/^file:\//, 'file:///') : null
-    escrowBuild = m2localPath != null
-}
-
 repositories {
     mavenCentral()
     gradlePluginPortal()
@@ -143,9 +138,7 @@ test {
     useJUnitPlatform()
 }
 
-if (!escrowBuild) {
-    project.tasks.findByPath("publish")?.dependsOn(":artifactoryPublish")
-}
+project.tasks.findByPath("publish")?.dependsOn(":artifactoryPublish")
 
 task openStagingRepository
 task closeStagingRepository
