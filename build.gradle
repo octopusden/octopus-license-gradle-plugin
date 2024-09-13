@@ -7,7 +7,6 @@ plugins {
     id 'com.jfrog.artifactory'
 }
 
-version = project.findProperty('buildVersion') ?: System.getenv("BUILD_VERSION") ?: project.findProperty('version')
 group = 'org.octopusden.octopus'
 description 'Octopus module for license gradle plugin'
 
