@@ -58,8 +58,6 @@ java {
 
 apply plugin: 'maven-publish'
 
-task exportDependenciesToTeamCity
-
 artifactory {
     def baseUrl = System.getenv('ARTIFACTORY_URL') ?: project.properties.get('artifactoryUrl')
     if (baseUrl != null) {
@@ -139,6 +137,3 @@ test {
 }
 
 project.tasks.findByPath("publish")?.dependsOn(":artifactoryPublish")
-
-task openStagingRepository
-task closeStagingRepository
