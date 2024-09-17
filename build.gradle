@@ -21,8 +21,8 @@ dependencies {
     api "org.octopusden.octopus.infrastructure:components-registry-service-client:${project['octopus-components-registry-service.version']}"
     api "com.platformlib:platformlib-process-local:${project['platformlib-process.version']}"
 
-    testImplementation "org.junit.jupiter:junit-jupiter-api:${project['junit-jupiter-api.version']}"
-    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${project['junit-jupiter-engine.version']}"
+    testImplementation "org.junit.jupiter:junit-jupiter-api:${project['junit-jupiter.version']}"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${project['junit-jupiter.version']}"
     testImplementation "org.mockito:mockito-core:${project['mockito-core.version']}"
 }
 
