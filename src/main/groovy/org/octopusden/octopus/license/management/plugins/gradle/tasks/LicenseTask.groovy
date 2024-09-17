@@ -137,18 +137,16 @@ class LicenseTask extends DefaultTask {
                 if (licenseRegistryGitRepository == null) {
                     throw new IllegalArgumentException("Property 'license-registry.git-repository' must be specified")
                 }
-                licenseArgs = """
-                        -Doctopus-license-maven-plugin.version=${octopusLicenseMavenPluginVersion},
-                        -Dlicense.skip=false,
-                        -Dlicense.includeTransitiveDependencies=false,
-                        -Dlicense-registry.git-repository=${licenseRegistryGitRepository},
-                        -Dlicense.failOnMissing=${(project.findProperty("license-fail-missing") ?: "true")},
-                        -Dlicense.failOnBlacklist=${(project.findProperty("license-fail-on-black-list") ?: "true")},
-                        -Dlicense.output.directory=${licensesDirectory.toPath().toAbsolutePath().normalize()},
-                        -Dlicense.includedDependenciesWhitelist=${(project.findProperty("license-deps-whitelist") ?: "")},
-                        -Dlicense.failOnNotWhitelistedDependency=${(project.findProperty("license-fail-on-not-whitelisted-dep") ?: "false")},
-                        -Dlicense.fileWhitelist=${(project.findProperty("license-file-whitelist") ?: "licenses-whitelist.txt")}
-                """
+                licenseArgs = "-Doctopus-license-maven-plugin.version=${octopusLicenseMavenPluginVersion} " +
+                        "-Dlicense.skip=false " +
+                        "-Dlicense.includeTransitiveDependencies=false " +
+                        "-Dlicense-registry.git-repository=${licenseRegistryGitRepository} " +
+                        "-Dlicense.failOnMissing=${(project.findProperty("license-fail-missing") ?: "true")} " +
+                        "-Dlicense.failOnBlacklist=${(project.findProperty("license-fail-on-black-list") ?: "true")} " +
+                        "-Dlicense.output.directory=${licensesDirectory.toPath().toAbsolutePath().normalize()} " +
+                        "-Dlicense.includedDependenciesWhitelist=${(project.findProperty("license-deps-whitelist") ?: "")} " +
+                        "-Dlicense.failOnNotWhitelistedDependency=${(project.findProperty("license-fail-on-not-whitelisted-dep") ?: "false")} " +
+                        "-Dlicense.fileWhitelist=${(project.findProperty("license-file-whitelist") ?: "licenses-whitelist.txt")} "
             }
             def processInstance = LocalProcessBuilderFactory.newLocalProcessBuilder()
                     .command(command)
