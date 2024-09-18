@@ -129,9 +129,14 @@ class LicenseTask extends DefaultTask {
             def mavenParameters = project.findProperty(MavenParametersUtils.MAVEN_LICENSE_PARAMETERS)
             if (mavenParameters != null) {
                 LOGGER.info("Maven license parameters: $mavenParameters")
-                mavenParameters = mavenParameters.toString().replaceAll(/^['"]|['"]$/, '')
-                mavenParameters += " -Dlicense.output.directory=${licensesDirectory.toPath().toAbsolutePath().normalize()}"
-                licenseArgs = mavenParameters.split(" ")
+                licenseArgs = mavenParameters
+                        .toString()
+                        .replaceAll(/^['"]|['"]$/, '')
+                        .plus(" -Dlicense.output.directory=${licensesDirectory.toPath().toAbsolutePath().normalize()}")
+                        .split(" ")
+                        .collect { param ->
+                            param
+                        }
             } else {
                 LOGGER.warn(("You're using a legacy method for parameter configuration that could be deleted in future. Please wrap all of the parameters in the 'maven-license-parameters'"))
                 def licenseRegistryGitRepository = project.findProperty("license-registry.git-repository")
