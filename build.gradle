@@ -59,17 +59,15 @@ java {
 apply plugin: 'maven-publish'
 
 artifactory {
-    def baseUrl = System.getenv('ARTIFACTORY_URL') ?: project.properties.get('artifactoryUrl')
-    if (baseUrl != null) {
-        contextUrl = "${baseUrl}/artifactory" as String
-    }
-
     publish {
+        def baseUrl = System.getenv('ARTIFACTORY_URL') ?: project.properties.get('artifactoryUrl')
+        if (baseUrl != null) {
+            contextUrl = "${baseUrl}/artifactory" as String
+        }
         repository {
             repoKey = System.getenv('ARTIFACTORY_DEPLOYER_REPO_KEY') ?: project.findProperty('NEXUS_REPO_KEY')
             username = System.getenv('ARTIFACTORY_DEPLOYER_USERNAME') ?: project.findProperty('NEXUS_USER')
             password = System.getenv('ARTIFACTORY_DEPLOYER_PASSWORD') ?: project.findProperty('NEXUS_PASSWORD')
-            maven = true
         }
         defaults {
             publications('ALL_PUBLICATIONS')
