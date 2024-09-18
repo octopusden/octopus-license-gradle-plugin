@@ -65,7 +65,7 @@ artifactory {
             contextUrl = "${baseUrl}/artifactory" as String
         }
         repository {
-            repoKey = System.getenv('ARTIFACTORY_DEPLOYER_REPO_KEY') ?: project.findProperty('NEXUS_REPO_KEY')
+            repoKey = System.getenv('ARTIFACTORY_REPOSITORY_KEY')
             username = System.getenv('ARTIFACTORY_DEPLOYER_USERNAME') ?: project.findProperty('NEXUS_USER')
             password = System.getenv('ARTIFACTORY_DEPLOYER_PASSWORD') ?: project.findProperty('NEXUS_PASSWORD')
         }
