@@ -39,8 +39,9 @@ class LicenseGradlePlugin implements Plugin<Project> {
     }
 
     private boolean isFalse(Project project, String property) {
-        return 'false'.equalsIgnoreCase(project.rootProject.findProperty(property) as String ?: 'true') ||
-                'false'.equalsIgnoreCase(MavenParametersUtils.getProjectProperty(project, property) ?: 'true')
+        def propertyValue = MavenParametersUtils.getProjectProperty(project, property)
+                ?: project.rootProject.findProperty(property)
+        return 'false'.equalsIgnoreCase(propertyValue as String)
     }
 
     private boolean nodeOnlyIf(Project project) {
@@ -121,8 +122,9 @@ class LicenseGradlePlugin implements Plugin<Project> {
         Task processLicenses = project.getTasks().create(processLicensesTaskName, LicenseTask.class)
         processLicenses.dependsOn(processLicensedDependencies)
         processLicenses.onlyIf {
-            "false".equalsIgnoreCase(project.findProperty("license.skip") as String ?: "true") ||
-                    "false".equalsIgnoreCase(MavenParametersUtils.getProjectProperty(project, "license.skip") ?: "true")
+            def licenseSkipPropertyValue = MavenParametersUtils.getProjectProperty(project, "license.skip")
+                    ?: project.findProperty("license.skip")
+            return "false".equalsIgnoreCase(licenseSkipPropertyValue as String)
         }
     }
 }
