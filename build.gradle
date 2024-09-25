@@ -4,6 +4,7 @@ plugins {
     id 'maven-publish'
     id 'io.github.gradle-nexus.publish-plugin'
     id 'signing'
+    id 'com.jfrog.artifactory'
 }
 
 group = 'org.octopusden.octopus'
@@ -15,12 +16,13 @@ repositories {
 }
 
 dependencies {
+    implementation group: 'org.jfrog.buildinfo', name: 'build-info-extractor-gradle', version: project['jfrog-artifactory.version']
     implementation "com.github.node-gradle:gradle-node-plugin:${project.'gradle-node-plugin.version'}"
     api "org.octopusden.octopus.infrastructure:components-registry-service-client:${project['octopus-components-registry-service.version']}"
     api "com.platformlib:platformlib-process-local:${project['platformlib-process.version']}"
 
-    testImplementation "org.junit.jupiter:junit-jupiter-api:${project['junit-jupiter-api.version']}"
-    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${project['junit-jupiter-engine.version']}"
+    testImplementation "org.junit.jupiter:junit-jupiter-api:${project['junit-jupiter.version']}"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${project['junit-jupiter.version']}"
     testImplementation "org.mockito:mockito-core:${project['mockito-core.version']}"
 }
 
@@ -47,7 +49,7 @@ sourceSets {
     }
 }
 
-java{
+java {
     targetCompatibility = JavaVersion.VERSION_1_8
     sourceCompatibility = JavaVersion.VERSION_1_8
     withJavadocJar()
@@ -55,6 +57,26 @@ java{
 }
 
 apply plugin: 'maven-publish'
+
+artifactory {
+    publish {
+        def baseUrl = System.getenv('ARTIFACTORY_URL') ?: project.properties.get('artifactoryUrl')
+        if (baseUrl != null) {
+            contextUrl = "${baseUrl}/artifactory" as String
+        }
+        repository {
+            repoKey = System.getenv('ARTIFACTORY_REPOSITORY_KEY') ?: project.findProperty('artifactoryRepositoryKey')
+            username = System.getenv('ARTIFACTORY_DEPLOYER_USERNAME') ?: project.findProperty('NEXUS_USER')
+            password = System.getenv('ARTIFACTORY_DEPLOYER_PASSWORD') ?: project.findProperty('NEXUS_PASSWORD')
+        }
+        defaults {
+            publications('ALL_PUBLICATIONS')
+            publishArtifacts = true
+            publishPom = true
+            publishBuildInfo = true
+        }
+    }
+}
 
 nexusPublishing {
     repositories {
@@ -111,3 +133,5 @@ signing {
 test {
     useJUnitPlatform()
 }
+
+project.tasks.findByPath("publish")?.dependsOn(":artifactoryPublish")
