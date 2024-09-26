@@ -7,7 +7,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
@@ -239,8 +238,6 @@ class LicensePluginTest {
     }
 
     @Test
-    @Disabled("Disabled due to unresolved file path error with 'npx' command execution")
-    // Related Issue: Fix NPM Functional Tests Error - see https://github.com/octopusden/octopus-license-gradle-plugin/issues/3
     fun testNodeJava() {
         val projectPath = gradle {
             testProjectName = "node-java"
@@ -264,8 +261,6 @@ class LicensePluginTest {
     }
 
     @Test
-    @Disabled("Disabled due to unresolved file path error with 'npx' command execution")
-    // Related Issue: Fix NPM Functional Tests Error - see https://github.com/octopusden/octopus-license-gradle-plugin/issues/3
     fun testNodeSingleModule() {
         val projectPath = gradle {
             testProjectName = "node-single-module"
@@ -285,8 +280,6 @@ class LicensePluginTest {
     }
 
     @Test
-    @Disabled("Disabled due to unresolved file path error with 'npx' command execution")
-    // Related Issue: Fix NPM Functional Tests Error - see https://github.com/octopusden/octopus-license-gradle-plugin/issues/3
     fun testNodeMultiModule() {
         val projectPath = gradle {
             testProjectName = "node-multi-module"
