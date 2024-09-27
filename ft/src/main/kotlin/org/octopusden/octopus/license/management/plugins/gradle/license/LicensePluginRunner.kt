@@ -70,6 +70,7 @@ fun gradleProcessInstance(init: TestGradleDSL.() -> Unit): Pair<ProcessInstance,
         "--info",
         "build",
         "-Plicense-management.version=${licenseManagementVersion}",
+        "-Puse_dev_repository=plugins",
         "-Pmaven-license-parameters=\'${mavenLicenseParameters}\'",
         "-Psupported-groups=${supportedGroups}"
     )
