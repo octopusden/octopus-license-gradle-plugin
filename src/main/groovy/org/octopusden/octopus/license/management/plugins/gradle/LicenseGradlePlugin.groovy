@@ -14,6 +14,7 @@ import org.octopusden.octopus.license.management.plugins.gradle.utils.MavenParam
 
 class LicenseGradlePlugin implements Plugin<Project> {
 
+    public static final String LICENSE_SKIP_PROPERTY = "license.skip"
     public static final String NODE_SKIP_PROPERTY = "node.skip"
     private final static String NPM_LICENSE_GROUP = 'NpmLicense'
     private final static String DEFAULT_NODE_VERSION = '18.12.1'
@@ -38,14 +39,16 @@ class LicenseGradlePlugin implements Plugin<Project> {
         }
     }
 
-    private boolean isFalse(Project project, String property) {
+    static boolean isFalse(Project project, String property) {
         def propertyValue = MavenParametersUtils.getProjectProperty(project, property)
-                ?: project.rootProject.findProperty(property)
+        if (propertyValue == null) {
+            propertyValue = project.rootProject.findProperty(property)
+        }
         return ["false", "null"].any { it.equalsIgnoreCase(propertyValue as String) } || propertyValue == null
     }
 
     private boolean nodeOnlyIf(Project project) {
-        return isFalse(project, 'license.skip') && isFalse(project, NODE_SKIP_PROPERTY) && !project.gradle.startParameter.offline
+        return isFalse(project, LICENSE_SKIP_PROPERTY) && isFalse(project, NODE_SKIP_PROPERTY) && !project.gradle.startParameter.offline
     }
 
     private String getEnvPath(Project project) {
@@ -121,10 +124,6 @@ class LicenseGradlePlugin implements Plugin<Project> {
         }
         Task processLicenses = project.getTasks().create(processLicensesTaskName, LicenseTask.class)
         processLicenses.dependsOn(processLicensedDependencies)
-        processLicenses.onlyIf {
-            def licenseSkipPropertyValue = MavenParametersUtils.getProjectProperty(project, "license.skip")
-                    ?: project.findProperty("license.skip")
-            return ["false", "null"].any { it.equalsIgnoreCase(licenseSkipPropertyValue as String) } || licenseSkipPropertyValue == null
-        }
+        processLicenses.onlyIf { return isFalse(project, LICENSE_SKIP_PROPERTY) }
     }
 }
