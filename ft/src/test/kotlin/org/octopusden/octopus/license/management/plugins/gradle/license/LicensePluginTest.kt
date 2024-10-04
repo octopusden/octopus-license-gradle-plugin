@@ -319,6 +319,21 @@ class LicensePluginTest {
                 )
             )
     }
+
+    @Test
+    fun testOctopusRelengPluginCompatibility() {
+        val projectPath = gradle {
+            testProjectName = "octopus-releng-plugin-compatibility"
+            additionalEnvVariables = mapOf("ARTIFACTORY_URL" to "artifactory url")
+        }
+        assertThat(zipTreeEntries(projectPath.resolve("build/distr/octopus-releng-plugin-compatibility.zip")))
+            .containsOnly(
+                ZipTreeEntry("licenses/apache-2.0 - apache-2.0.txt"),
+                ZipTreeEntry("licenses/THIRD-PARTY.txt"),
+                ZipTreeEntry("sshd-common-2.6.0.jar"),
+                ZipTreeEntry("sshd-core-2.6.0.jar")
+            )
+    }
 }
 
 data class LicensePom(val dependencies: Collection<LicenseDependency>)

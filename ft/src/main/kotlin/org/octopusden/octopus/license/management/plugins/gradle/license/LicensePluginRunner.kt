@@ -21,6 +21,7 @@ const val OCTOPUS_LICENSE_MAVEN_PLUGIN_VERSION = "2.0.8"
 open class TestGradleDSL {
     lateinit var testProjectName: String
     var additionalArguments: Array<String> = arrayOf()
+    var additionalEnvVariables: Map<String, String> = mapOf()
     var tasks: Array<String> = arrayOf()
     var clean = false
 }
@@ -85,7 +86,7 @@ fun gradleProcessInstance(init: TestGradleDSL.() -> Unit): Pair<ProcessInstance,
     }
     return Pair(ProcessBuilders
             .newProcessBuilder<ProcessBuilder>(LocalProcessSpec.LOCAL_COMMAND)
-            .envVariables(mapOf("JAVA_HOME" to System.getProperties().getProperty("java.home")))
+            .envVariables(mapOf("JAVA_HOME" to System.getProperties().getProperty("java.home")) + testGradleDSL.additionalEnvVariables)
             .logger { it.logger(LOGGER) }
             .defaultExtensionMapping()
             .workDirectory(projectPath)
