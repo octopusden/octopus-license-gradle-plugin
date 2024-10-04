@@ -125,7 +125,6 @@ class LicenseTask extends DefaultTask {
                 command = "$mavenHome/bin/mvn"
             }
 
-            LOGGER.info("This plugin version is used to test \"Could not set unknown property \'maven\' for object of type org.jfrog.gradle.plugin.artifactory.dsl.PublisherConfig\$Repository\" error ")
             String licenseArgs
             def mavenParameters = project.findProperty(MavenParametersUtils.MAVEN_LICENSE_PARAMETERS)
             if (mavenParameters != null) {
