@@ -23,4 +23,14 @@ public final class MavenParametersUtils {
         }
         return null;
     }
+
+    public static Boolean isFalse(Project project, String property) {
+        String propertyValue = getProjectProperty(project, property);
+
+        if (propertyValue == null) {
+            propertyValue = String.valueOf(project.getRootProject().findProperty(property));
+        }
+
+        return propertyValue == null || propertyValue.equalsIgnoreCase("false") || propertyValue.equalsIgnoreCase("null");
+    }
 }

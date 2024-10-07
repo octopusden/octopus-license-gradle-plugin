@@ -10,7 +10,8 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.util.GradleVersion
-import org.octopusden.octopus.license.management.plugins.gradle.utils.MavenParametersUtils
+
+import static org.octopusden.octopus.license.management.plugins.gradle.utils.MavenParametersUtils.isFalse
 
 class LicenseGradlePlugin implements Plugin<Project> {
 
@@ -37,14 +38,6 @@ class LicenseGradlePlugin implements Plugin<Project> {
             // yarnWorkDir = project.file("${project.buildDir}/yarn")
             // nodeProjectDir = project.file("${project.projectDir}/frontend")
         }
-    }
-
-    static boolean isFalse(Project project, String property) {
-        def propertyValue = MavenParametersUtils.getProjectProperty(project, property)
-        if (propertyValue == null) {
-            propertyValue = project.rootProject.findProperty(property)
-        }
-        return ["false", "null"].any { it.equalsIgnoreCase(propertyValue as String) } || propertyValue == null
     }
 
     private boolean nodeOnlyIf(Project project) {
