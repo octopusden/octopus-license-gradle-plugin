@@ -16,8 +16,8 @@ dependencies {
 }
 
 task zipDistributive(type:Zip) {
-    archiveName     "generator.zip"
-    destinationDir file('build/distr')
+    archiveFileName = "generator.zip"
+    destinationDirectory = file('build/distr')
     from configurations.c1
     from configurations.c2
     from (processLicenses) {

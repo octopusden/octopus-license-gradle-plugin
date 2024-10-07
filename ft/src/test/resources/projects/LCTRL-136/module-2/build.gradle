@@ -12,8 +12,8 @@ dependencies {
 }
 
 task zipDistributive(type:Zip) {
-    archiveName     "module2.zip"
-    destinationDir file('build/distr')
+    archiveFileName = "module2.zip"
+    destinationDirectory = file('build/distr')
     from (processModuleLicenses) {
         into 'licenses'
     }

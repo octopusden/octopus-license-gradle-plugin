@@ -12,8 +12,8 @@ dependencies {
 }
 
 task zipDistributive(type:Zip) {
-    archiveName     "multi-module.zip"
-    destinationDir file('build/distr')
+    archiveFileName = "multi-module.zip"
+    destinationDirectory = file('build/distr')
     from configurations.sshd
     from (processLicenses) {
         into 'licenses'
