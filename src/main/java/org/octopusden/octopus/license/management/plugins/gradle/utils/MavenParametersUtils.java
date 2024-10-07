@@ -24,6 +24,12 @@ public final class MavenParametersUtils {
         return null;
     }
 
+    /**
+     * Returns {@code true} for properties with the value
+     * with values other than {@code false}, {@code null}, {@code "false"}, {@code "null"}.
+     * Otherwise, returns {@code false}. Prioritizes the property in
+     * {@code maven-license-parameters} unless its value is {@code null}.
+     */
     public static Boolean isFalse(Project project, String property) {
         String propertyValue = getProjectProperty(project, property);
 
