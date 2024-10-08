@@ -54,9 +54,13 @@ fun gradleProcessInstance(init: TestGradleDSL.() -> Unit): Pair<ProcessInstance,
         System.getenv().getOrDefault(LICENSE_REGISTRY_GIT_REPOSITORY_PROPERTY,
             System.getenv(LICENSE_REGISTRY_GIT_REPOSITORY_PROPERTY.uppercase().replace(Regex("[.-]"), "_"))))
 
+    val octopusReleaseManagementVersion = System.getenv().getOrDefault("octopus-release-management.version", System.getenv("GRADLE_OCTOPUS_RELEASE_MANAGEMENT_PLUGIN_VERSION"))
+    if (octopusReleaseManagementVersion == null) {
+        throw IllegalArgumentException("Property 'GRADLE_OCTOPUS_RELEASE_MANAGEMENT_PLUGIN_VERSION' or 'octopus-release-management.version' must be specified on the environment variables for functional tests!")
+    }
+
     val licenseManagementVersion = System.getenv().getOrDefault("license-management.version", "1.0-SNAPSHOT")
     val licenseMavenPluginVersion = System.getenv().getOrDefault("octopus-license-maven-plugin.version", OCTOPUS_LICENSE_MAVEN_PLUGIN_VERSION)
-    val octopusReleaseManagementVersion = System.getenv().getOrDefault("octopus-release-management.version", "1.0")
     val supportedGroups = System.getenv().getOrDefault("supported-groups", System.getenv("SUPPORTED_GROUPS"))
     val licenseRegistryGitRepository = System.getenv().getOrDefault("license-registry.git-repository", System.getenv("LICENSE_REGISTRY_GIT_REPOSITORY"))
 
