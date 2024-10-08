@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
-import static org.octopusden.octopus.license.management.plugins.gradle.utils.MavenParametersUtils.getProjectProperty;
+import static org.octopusden.octopus.license.management.plugins.gradle.utils.MavenParametersUtils.getLicenseParametersProperty;
 import static org.octopusden.octopus.license.management.plugins.gradle.utils.MavenParametersUtils.isFalse;
 import static org.octopusden.octopus.license.management.plugins.gradle.utils.MavenParametersUtils.MAVEN_LICENSE_PARAMETERS;
 
@@ -26,46 +26,46 @@ public class MavenParametersUtilsTest {
     }
 
     @Test
-    void testGetProjectProperty() {
+    void testGetLicenseParametersProperty() {
         when(mockProject.findProperty(MAVEN_LICENSE_PARAMETERS))
                 .thenReturn("-Dparameter1=value1 -Dparameter2=value2 -Dparameter3=value3");
 
-        assertEquals("value1", getProjectProperty(mockProject, "parameter1"));
-        assertEquals("value2", getProjectProperty(mockProject, "parameter2"));
-        assertEquals("value3", getProjectProperty(mockProject, "parameter3"));
+        assertEquals("value1", getLicenseParametersProperty(mockProject, "parameter1"));
+        assertEquals("value2", getLicenseParametersProperty(mockProject, "parameter2"));
+        assertEquals("value3", getLicenseParametersProperty(mockProject, "parameter3"));
     }
 
     @Test
-    void testGetProjectPropertyWithSingleQuotedParameters() {
+    void testGetLicenseParametersPropertyWithSingleQuotedParameters() {
         when(mockProject.findProperty(MAVEN_LICENSE_PARAMETERS))
                 .thenReturn("'-Dparameter1=value1 -Dparameter2=value2 -Dparameter3=value3'");
 
-        assertEquals("value1", getProjectProperty(mockProject, "parameter1"));
-        assertEquals("value2", getProjectProperty(mockProject, "parameter2"));
-        assertEquals("value3", getProjectProperty(mockProject, "parameter3"));
+        assertEquals("value1", getLicenseParametersProperty(mockProject, "parameter1"));
+        assertEquals("value2", getLicenseParametersProperty(mockProject, "parameter2"));
+        assertEquals("value3", getLicenseParametersProperty(mockProject, "parameter3"));
     }
 
     @Test
-    void testGetProjectPropertyWithDoubleQuotedParameters() {
+    void testGetLicenseParametersPropertyWithDoubleQuotedParameters() {
         when(mockProject.findProperty(MAVEN_LICENSE_PARAMETERS))
                 .thenReturn("\"-Dparameter1=value1 -Dparameter2=value2 -Dparameter3=value3\"");
 
-        assertEquals("value1", getProjectProperty(mockProject, "parameter1"));
-        assertEquals("value2", getProjectProperty(mockProject, "parameter2"));
-        assertEquals("value3", getProjectProperty(mockProject, "parameter3"));
+        assertEquals("value1", getLicenseParametersProperty(mockProject, "parameter1"));
+        assertEquals("value2", getLicenseParametersProperty(mockProject, "parameter2"));
+        assertEquals("value3", getLicenseParametersProperty(mockProject, "parameter3"));
     }
 
     @Test
-    void testGetProjectPropertyReturnsNullWhenKeyNotFound() {
+    void testGetLicenseParametersPropertyReturnsNullWhenKeyNotFound() {
         when(mockProject.findProperty(MAVEN_LICENSE_PARAMETERS))
                 .thenReturn("-Dparameter1=value1 -Dparameter2=value2");
 
-        assertNull(getProjectProperty(mockProject, "nonExistentParameter"));
+        assertNull(getLicenseParametersProperty(mockProject, "nonExistentParameter"));
     }
 
     @Test
-    void testGetProjectPropertyReturnsNullWhenParametersNotSet() {
-        assertNull(getProjectProperty(mockProject, "parameter"));
+    void testGetLicenseParametersPropertyReturnsNullWhenParametersNotSet() {
+        assertNull(getLicenseParametersProperty(mockProject, "parameter"));
     }
 
     /**
@@ -79,9 +79,9 @@ public class MavenParametersUtilsTest {
             when(mockProject.findProperty("falseProp")).thenReturn(false);
             when(mockProject.findProperty("nullProp")).thenReturn(null);
 
-            mockedStatic.when(() -> getProjectProperty(mockProject, "falseStringProp"))
+            mockedStatic.when(() -> getLicenseParametersProperty(mockProject, "falseStringProp"))
                     .thenReturn("false");
-            mockedStatic.when(() -> getProjectProperty(mockProject, "nullStringProp"))
+            mockedStatic.when(() -> getLicenseParametersProperty(mockProject, "nullStringProp"))
                     .thenReturn("null");
 
             String[] properties = {"falseProp", "newProp", "falseStringProp", "nullStringProp"};
@@ -100,13 +100,13 @@ public class MavenParametersUtilsTest {
         try (MockedStatic<MavenParametersUtils> mockedStatic = mockStatic(MavenParametersUtils.class)) {
             when(mockProject.findProperty("trueProp")).thenReturn(true);
 
-            mockedStatic.when(() -> getProjectProperty(mockProject, "trueStringProp"))
+            mockedStatic.when(() -> getLicenseParametersProperty(mockProject, "trueStringProp"))
                     .thenReturn("true");
-            mockedStatic.when(() -> getProjectProperty(mockProject, "emptyStringProp"))
+            mockedStatic.when(() -> getLicenseParametersProperty(mockProject, "emptyStringProp"))
                     .thenReturn("");
-            mockedStatic.when(() -> getProjectProperty(mockProject, "whitespaceStringProp"))
+            mockedStatic.when(() -> getLicenseParametersProperty(mockProject, "whitespaceStringProp"))
                     .thenReturn("    ");
-            mockedStatic.when(() -> getProjectProperty(mockProject, "randomStringProp"))
+            mockedStatic.when(() -> getLicenseParametersProperty(mockProject, "randomStringProp"))
                     .thenReturn("random");
 
             String[] properties = {"trueStringProp", "emptyStringProp", "whitespaceStringProp", "randomStringProp"};
@@ -122,15 +122,15 @@ public class MavenParametersUtilsTest {
     @Test
     void testProjectPropDoesNotOverrideMvnProp() {
         try (MockedStatic<MavenParametersUtils> mockedStatic = mockStatic(MavenParametersUtils.class)) {
-            mockedStatic.when(() -> getProjectProperty(mockProject, "falseStringProp"))
+            mockedStatic.when(() -> getLicenseParametersProperty(mockProject, "falseStringProp"))
                     .thenReturn("false");
-            mockedStatic.when(() -> getProjectProperty(mockProject, "trueStringProp"))
+            mockedStatic.when(() -> getLicenseParametersProperty(mockProject, "trueStringProp"))
                     .thenReturn("true");
-            mockedStatic.when(() -> getProjectProperty(mockProject, "nullStringProp"))
+            mockedStatic.when(() -> getLicenseParametersProperty(mockProject, "nullStringProp"))
                     .thenReturn("null");
-            mockedStatic.when(() -> getProjectProperty(mockProject, "emptyStringProp"))
+            mockedStatic.when(() -> getLicenseParametersProperty(mockProject, "emptyStringProp"))
                     .thenReturn("");
-            mockedStatic.when(() -> getProjectProperty(mockProject, "randomStringProp"))
+            mockedStatic.when(() -> getLicenseParametersProperty(mockProject, "randomStringProp"))
                     .thenReturn("random");
 
             when(mockProject.findProperty("falseStringProp")).thenReturn(true);
@@ -157,7 +157,7 @@ public class MavenParametersUtilsTest {
     @Test
     void testProjectPropOverridesOnlyIfMvnPropIsNull() {
         try (MockedStatic<MavenParametersUtils> mockedStatic = mockStatic(MavenParametersUtils.class)) {
-            mockedStatic.when(() -> getProjectProperty(mockProject, "nullProp"))
+            mockedStatic.when(() -> getLicenseParametersProperty(mockProject, "nullProp"))
                     .thenReturn(null);
 
             when(mockProject.findProperty("nullProp")).thenReturn(true);

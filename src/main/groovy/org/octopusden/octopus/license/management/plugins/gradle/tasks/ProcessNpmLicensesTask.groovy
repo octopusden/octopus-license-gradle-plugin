@@ -37,7 +37,7 @@ class ProcessNpmLicensesTask extends DefaultTask {
     public final static String NPM_LIST_SEPARATOR = ";"
     public final static String EOL = System.properties.'line.separator'
 
-    public final String licenseRegistryGitRepository = MavenParametersUtils.getProjectProperty(project, LICENSE_REGISTRY_GIT_REPOSITORY_PROPERTY_NAME)
+    public final String licenseRegistryGitRepository = MavenParametersUtils.getLicenseParametersProperty(project, LICENSE_REGISTRY_GIT_REPOSITORY_PROPERTY_NAME)
             ?: project.findProperty(LICENSE_REGISTRY_GIT_REPOSITORY_PROPERTY_NAME)
 
     static File getWorkingDir(Project project) { return project.node.nodeProjectDir.get().asFile }

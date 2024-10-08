@@ -51,7 +51,7 @@ class LicenseTask extends DefaultTask {
             )
         }.toSet()
 
-        def octopusLicenseMavenPluginVersion = MavenParametersUtils.getProjectProperty(project, "octopus-license-maven-plugin.version")
+        def octopusLicenseMavenPluginVersion = MavenParametersUtils.getLicenseParametersProperty(project, "octopus-license-maven-plugin.version")
                 ?: project.findProperty("octopus-license-maven-plugin.version")
 
         if (!octopusLicenseMavenPluginVersion) {
