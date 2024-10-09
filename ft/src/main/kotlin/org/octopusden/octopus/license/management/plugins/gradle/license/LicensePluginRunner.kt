@@ -51,9 +51,6 @@ fun gradleProcessInstance(init: TestGradleDSL.() -> Unit): Pair<ProcessInstance,
     if (!Files.isDirectory(projectPath)) {
         throw IllegalArgumentException("The specified project '${testGradleDSL.testProjectName}' hasn't been found at $projectPath")
     }
-    val lrgr = System.getProperty(LICENSE_REGISTRY_GIT_REPOSITORY_PROPERTY,
-        System.getenv().getOrDefault(LICENSE_REGISTRY_GIT_REPOSITORY_PROPERTY,
-            System.getenv(LICENSE_REGISTRY_GIT_REPOSITORY_PROPERTY.uppercase().replace(Regex("[.-]"), "_"))))
 
     val licenseManagementVersion = System.getenv().getOrDefault("license-management.version", "1.0-SNAPSHOT")
     val licenseMavenPluginVersion = System.getenv().getOrDefault("octopus-license-maven-plugin.version", OCTOPUS_LICENSE_MAVEN_PLUGIN_VERSION)
