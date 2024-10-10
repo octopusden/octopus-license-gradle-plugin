@@ -16,7 +16,6 @@ import java.util.stream.Collectors
 
 val LOGGER = LoggerFactory.getLogger("org.octopusden.octopus.license.management.plugins.gradle.license")
 const val LICENSE_REGISTRY_GIT_REPOSITORY_PROPERTY = "license-registry.git-repository"
-const val GRADLE_OCTOPUS_RELEASE_MANAGEMENT_PLUGIN_VERSION_PROPERTY = "octopus-release-management.version"
 const val OCTOPUS_LICENSE_MAVEN_PLUGIN_VERSION = "2.0.8"
 
 open class TestGradleDSL {
@@ -52,17 +51,17 @@ fun gradleProcessInstance(init: TestGradleDSL.() -> Unit): Pair<ProcessInstance,
         throw IllegalArgumentException("The specified project '${testGradleDSL.testProjectName}' hasn't been found at $projectPath")
     }
 
-    val licenseManagementVersion = System.getenv().getOrDefault("license-management.version", "1.0-SNAPSHOT")
-    val licenseMavenPluginVersion = System.getenv().getOrDefault("octopus-license-maven-plugin.version", OCTOPUS_LICENSE_MAVEN_PLUGIN_VERSION)
-    val supportedGroups = System.getenv().getOrDefault("supported-groups", System.getenv("SUPPORTED_GROUPS"))
-    val licenseRegistryGitRepository = System.getenv().getOrDefault(LICENSE_REGISTRY_GIT_REPOSITORY_PROPERTY, System.getenv("LICENSE_REGISTRY_GIT_REPOSITORY"))
+    val licenseManagementVersion = System.getenv().getOrDefault("LICENSE_MANAGEMENT_VERSION", "1.0-SNAPSHOT")
+    val licenseMavenPluginVersion = System.getenv().getOrDefault("OCTOPUS_LICENSE_MAVEN_PLUGIN_VERSION", OCTOPUS_LICENSE_MAVEN_PLUGIN_VERSION)
+    val supportedGroups = System.getenv("SUPPORTED_GROUPS")
+    val licenseRegistryGitRepository = System.getenv("LICENSE_REGISTRY_GIT_REPOSITORY")
     val octopusReleaseManagementVersion = System.getenv().getOrDefault(
-        GRADLE_OCTOPUS_RELEASE_MANAGEMENT_PLUGIN_VERSION_PROPERTY, System.getenv("GRADLE_OCTOPUS_RELEASE_MANAGEMENT_PLUGIN_VERSION")
+        "OCTOPUS_RELEASE_MANAGEMENT_PLUGIN_VERSION", System.getenv("OCTOPUS_RELEASE_MANAGEMENT_GRADLE_PLUGIN_VERSION")
     )
 
     val missingProperties = listOfNotNull(
-        if (licenseRegistryGitRepository == null) "$LICENSE_REGISTRY_GIT_REPOSITORY_PROPERTY or LICENSE_REGISTRY_GIT_REPOSITORY" else null,
-        if (octopusReleaseManagementVersion == null) "$GRADLE_OCTOPUS_RELEASE_MANAGEMENT_PLUGIN_VERSION_PROPERTY or GRADLE_OCTOPUS_RELEASE_MANAGEMENT_PLUGIN_VERSION" else null
+        if (licenseRegistryGitRepository == null) "LICENSE_REGISTRY_GIT_REPOSITORY" else null,
+        if (octopusReleaseManagementVersion == null) "OCTOPUS_RELEASE_MANAGEMENT_PLUGIN_VERSION or OCTOPUS_RELEASE_MANAGEMENT_GRADLE_PLUGIN_VERSION" else null
     )
 
     if (missingProperties.isNotEmpty()) {
