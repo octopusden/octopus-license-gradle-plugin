@@ -1,0 +1,29 @@
+plugins {
+    id 'org.octopusden.octopus.license-management'
+    id 'org.octopusden.octopus-release-management'
+}
+
+project.group = 'org.octopusden.octopus.zenit'
+
+configurations {
+    sshd
+}
+
+dependencies {
+    sshd (group: 'org.apache.sshd', name: 'sshd-core', version: '2.6.0') {
+        exclude group: 'org.slf4j', module: 'slf4j-api'
+    }
+}
+
+task zipDistributive(type:Zip) {
+    archiveName     "octopus-releng-plugin-compatibility.zip"
+    destinationDir file('build/distr')
+    from configurations.sshd
+    from (processLicenses) {
+        into 'licenses'
+    }
+}
+
+task build {
+    dependsOn zipDistributive
+}
