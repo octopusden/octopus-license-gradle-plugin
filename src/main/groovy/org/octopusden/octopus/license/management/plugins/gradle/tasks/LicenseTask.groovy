@@ -51,8 +51,8 @@ class LicenseTask extends DefaultTask {
             )
         }.toSet()
 
-        def octopusLicenseMavenPluginVersion = project.findProperty("octopus-license-maven-plugin.version")
-                ?: MavenParametersUtils.getProjectProperty(project, "octopus-license-maven-plugin.version")
+        def octopusLicenseMavenPluginVersion = MavenParametersUtils.getLicenseParametersProperty(project, "octopus-license-maven-plugin.version")
+                ?: project.findProperty("octopus-license-maven-plugin.version")
 
         if (!octopusLicenseMavenPluginVersion) {
             throw new IllegalArgumentException("Property 'octopus-license-maven-plugin.version' must be specified")
@@ -125,30 +125,33 @@ class LicenseTask extends DefaultTask {
                 command = "$mavenHome/bin/mvn"
             }
 
-            String licenseArgs
+            def licenseArgs
             def mavenParameters = project.findProperty(MavenParametersUtils.MAVEN_LICENSE_PARAMETERS)
             if (mavenParameters != null) {
                 LOGGER.info("Maven license parameters: $mavenParameters")
-                licenseArgs = mavenParameters.toString().replaceAll(/^['"]|['"]$/, '')
-                licenseArgs += " -Dlicense.output.directory=${licensesDirectory.toPath().toAbsolutePath().normalize()}"
+                licenseArgs = mavenParameters
+                        .toString()
+                        .replaceAll(/^['"]|['"]$/, '')
+                        .plus(" -Dlicense.output.directory=${licensesDirectory.toPath().toAbsolutePath().normalize()}")
+                        .split(" ")
             } else {
                 LOGGER.warn(("You're using a legacy method for parameter configuration that could be deleted in future. Please wrap all of the parameters in the 'maven-license-parameters'"))
                 def licenseRegistryGitRepository = project.findProperty("license-registry.git-repository")
                 if (licenseRegistryGitRepository == null) {
                     throw new IllegalArgumentException("Property 'license-registry.git-repository' must be specified")
                 }
-                licenseArgs = """
-                        -Doctopus-license-maven-plugin.version=${octopusLicenseMavenPluginVersion},
-                        -Dlicense.skip=false,
-                        -Dlicense.includeTransitiveDependencies=false,
-                        -Dlicense-registry.git-repository=${licenseRegistryGitRepository},
-                        -Dlicense.failOnMissing=${(project.findProperty("license-fail-missing") ?: "true")},
-                        -Dlicense.failOnBlacklist=${(project.findProperty("license-fail-on-black-list") ?: "true")},
-                        -Dlicense.output.directory=${licensesDirectory.toPath().toAbsolutePath().normalize()},
-                        -Dlicense.includedDependenciesWhitelist=${(project.findProperty("license-deps-whitelist") ?: "")},
-                        -Dlicense.failOnNotWhitelistedDependency=${(project.findProperty("license-fail-on-not-whitelisted-dep") ?: "false")},
-                        -Dlicense.fileWhitelist=${(project.findProperty("license-file-whitelist") ?: "licenses-whitelist.txt")}
-                """
+                licenseArgs = [
+                        "-Doctopus-license-maven-plugin.version=${octopusLicenseMavenPluginVersion}",
+                        "-Dlicense.skip=false",
+                        "-Dlicense.includeTransitiveDependencies=false",
+                        "-Dlicense-registry.git-repository=${licenseRegistryGitRepository}",
+                        "-Dlicense.failOnMissing=${(project.findProperty("license-fail-missing") ?: "true")}",
+                        "-Dlicense.failOnBlacklist=${(project.findProperty("license-fail-on-black-list") ?: "true")}",
+                        "-Dlicense.output.directory=${licensesDirectory.toPath().toAbsolutePath().normalize()}",
+                        "-Dlicense.includedDependenciesWhitelist=${(project.findProperty("license-deps-whitelist") ?: "")}",
+                        "-Dlicense.failOnNotWhitelistedDependency=${(project.findProperty("license-fail-on-not-whitelisted-dep") ?: "false")}",
+                        "-Dlicense.fileWhitelist=${(project.findProperty("license-file-whitelist") ?: "licenses-whitelist.txt")}"
+                ]
             }
             def processInstance = LocalProcessBuilderFactory.newLocalProcessBuilder()
                     .command(command)
@@ -171,7 +174,7 @@ class LicenseTask extends DefaultTask {
                         licensesPom.toPath().toAbsolutePath().normalize(),
                         "-B",
                         "-Pnexus-staging",
-                        *licenseArgs.split(" "),
+                        *licenseArgs,
                         "generate-resources").toCompletableFuture().get()
             def retCode = processInstance.exitCode
             project.file("build/licenses-mvn.log").text = output.join('\n')

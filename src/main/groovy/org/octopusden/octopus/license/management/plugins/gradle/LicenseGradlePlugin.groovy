@@ -10,10 +10,12 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.util.GradleVersion
-import org.octopusden.octopus.license.management.plugins.gradle.utils.MavenParametersUtils
+
+import static org.octopusden.octopus.license.management.plugins.gradle.utils.MavenParametersUtils.propertyIsFalse
 
 class LicenseGradlePlugin implements Plugin<Project> {
 
+    public static final String LICENSE_SKIP_PROPERTY = "license.skip"
     public static final String NODE_SKIP_PROPERTY = "node.skip"
     private final static String NPM_LICENSE_GROUP = 'NpmLicense'
     private final static String DEFAULT_NODE_VERSION = '18.12.1'
@@ -38,13 +40,8 @@ class LicenseGradlePlugin implements Plugin<Project> {
         }
     }
 
-    private boolean isFalse(Project project, String property) {
-        return 'false'.equalsIgnoreCase(project.rootProject.findProperty(property) as String ?: 'true') ||
-                'false'.equalsIgnoreCase(MavenParametersUtils.getProjectProperty(project, property) ?: 'true')
-    }
-
     private boolean nodeOnlyIf(Project project) {
-        return isFalse(project, 'license.skip') && isFalse(project, NODE_SKIP_PROPERTY) && !project.gradle.startParameter.offline
+        return propertyIsFalse(project, LICENSE_SKIP_PROPERTY) && propertyIsFalse(project, NODE_SKIP_PROPERTY) && !project.gradle.startParameter.offline
     }
 
     private String getEnvPath(Project project) {
@@ -120,9 +117,6 @@ class LicenseGradlePlugin implements Plugin<Project> {
         }
         Task processLicenses = project.getTasks().create(processLicensesTaskName, LicenseTask.class)
         processLicenses.dependsOn(processLicensedDependencies)
-        processLicenses.onlyIf {
-            "false".equalsIgnoreCase(project.findProperty("license.skip") as String ?: "true") ||
-                    "false".equalsIgnoreCase(MavenParametersUtils.getProjectProperty(project, "license.skip") ?: "true")
-        }
+        processLicenses.onlyIf { return propertyIsFalse(project, LICENSE_SKIP_PROPERTY) }
     }
 }
