@@ -11,7 +11,7 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.util.GradleVersion
 
-import static org.octopusden.octopus.license.management.plugins.gradle.utils.MavenParametersUtils.isFalse
+import static org.octopusden.octopus.license.management.plugins.gradle.utils.MavenParametersUtils.propertyIsFalse
 
 class LicenseGradlePlugin implements Plugin<Project> {
 
@@ -41,7 +41,7 @@ class LicenseGradlePlugin implements Plugin<Project> {
     }
 
     private boolean nodeOnlyIf(Project project) {
-        return isFalse(project, LICENSE_SKIP_PROPERTY) && isFalse(project, NODE_SKIP_PROPERTY) && !project.gradle.startParameter.offline
+        return propertyIsFalse(project, LICENSE_SKIP_PROPERTY) && propertyIsFalse(project, NODE_SKIP_PROPERTY) && !project.gradle.startParameter.offline
     }
 
     private String getEnvPath(Project project) {
@@ -117,6 +117,6 @@ class LicenseGradlePlugin implements Plugin<Project> {
         }
         Task processLicenses = project.getTasks().create(processLicensesTaskName, LicenseTask.class)
         processLicenses.dependsOn(processLicensedDependencies)
-        processLicenses.onlyIf { return isFalse(project, LICENSE_SKIP_PROPERTY) }
+        processLicenses.onlyIf { return propertyIsFalse(project, LICENSE_SKIP_PROPERTY) }
     }
 }

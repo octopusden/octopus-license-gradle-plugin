@@ -14,7 +14,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 import static org.octopusden.octopus.license.management.plugins.gradle.utils.MavenParametersUtils.getLicenseParametersProperty;
-import static org.octopusden.octopus.license.management.plugins.gradle.utils.MavenParametersUtils.isFalse;
+import static org.octopusden.octopus.license.management.plugins.gradle.utils.MavenParametersUtils.propertyIsFalse;
 import static org.octopusden.octopus.license.management.plugins.gradle.utils.MavenParametersUtils.MAVEN_LICENSE_PARAMETERS;
 
 public class MavenParametersUtilsTest {
@@ -69,12 +69,12 @@ public class MavenParametersUtilsTest {
     }
 
     /**
-     * Tests that {@code isFalse()} returns {@code true} for properties
+     * Tests that {@code propertyIsFalse()} returns {@code true} for properties
      * with values {@code false}, {@code null}, {@code "false"}, {@code "null"} in
      * {@code maven-license-parameters} or project properties.
      */
     @Test
-    void testIsFalseForFalseOrNullValues() {
+    void testPropertyIsFalseForFalseOrNullValues() {
         try (MockedStatic<MavenParametersUtils> mockedStatic = mockStatic(MavenParametersUtils.class)) {
             when(mockProject.findProperty("falseProp")).thenReturn(false);
             when(mockProject.findProperty("nullProp")).thenReturn(null);
@@ -85,18 +85,18 @@ public class MavenParametersUtilsTest {
                     .thenReturn("null");
 
             String[] properties = {"falseProp", "newProp", "falseStringProp", "nullStringProp"};
-            mockIsFalseToCallRealMethod(mockedStatic, properties);
-            for (String property: properties) assertTrue(isFalse(mockProject, property));
+            mockPropertyIsFalseToCallRealMethod(mockedStatic, properties);
+            for (String property: properties) assertTrue(propertyIsFalse(mockProject, property));
         }
     }
 
     /**
-     * Tests that {@code isFalse()} returns {@code false} for properties
+     * Tests that {@code propertyIsFalse()} returns {@code false} for properties
      * with values other than {@code false}, {@code null}, {@code "false"}, {@code "null"} in
      * {@code maven-license-parameters} or project properties.
      */
     @Test
-    void testIsFalseForNonFalseValues() {
+    void testPropertyIsFalseForNonFalseValues() {
         try (MockedStatic<MavenParametersUtils> mockedStatic = mockStatic(MavenParametersUtils.class)) {
             when(mockProject.findProperty("trueProp")).thenReturn(true);
 
@@ -110,13 +110,13 @@ public class MavenParametersUtilsTest {
                     .thenReturn("random");
 
             String[] properties = {"trueStringProp", "emptyStringProp", "whitespaceStringProp", "randomStringProp"};
-            mockIsFalseToCallRealMethod(mockedStatic, properties);
-            for (String property: properties) assertFalse(isFalse(mockProject, property));
+            mockPropertyIsFalseToCallRealMethod(mockedStatic, properties);
+            for (String property: properties) assertFalse(propertyIsFalse(mockProject, property));
         }
     }
 
     /**
-     * Tests that {@code isFalse()} method prioritizes the value
+     * Tests that {@code propertyIsFalse()} method prioritizes the value
      * from {@code maven-license-parameters} over the project property value.
      */
     @Test
@@ -140,17 +140,17 @@ public class MavenParametersUtilsTest {
             when(mockProject.findProperty("randomStringProp")).thenReturn(false);
 
             String[] properties = {"falseStringProp", "trueStringProp", "nullStringProp", "emptyStringProp", "randomStringProp"};
-            mockIsFalseToCallRealMethod(mockedStatic, properties);
-            assertTrue(isFalse(mockProject, "falseStringProp"));
-            assertFalse(isFalse(mockProject, "trueStringProp"));
-            assertTrue(isFalse(mockProject, "nullStringProp"));
-            assertFalse(isFalse(mockProject, "emptyStringProp"));
-            assertFalse(isFalse(mockProject, "randomStringProp"));
+            mockPropertyIsFalseToCallRealMethod(mockedStatic, properties);
+            assertTrue(propertyIsFalse(mockProject, "falseStringProp"));
+            assertFalse(propertyIsFalse(mockProject, "trueStringProp"));
+            assertTrue(propertyIsFalse(mockProject, "nullStringProp"));
+            assertFalse(propertyIsFalse(mockProject, "emptyStringProp"));
+            assertFalse(propertyIsFalse(mockProject, "randomStringProp"));
         }
     }
 
     /**
-     * Tests that {@code isFalse()} method uses the project property value only
+     * Tests that {@code propertyIsFalse()} method uses the project property value only
      * when the corresponding property in {@code maven-license-parameters} is not set
      * (returns {@code null}).
      */
@@ -163,14 +163,14 @@ public class MavenParametersUtilsTest {
             when(mockProject.findProperty("nullProp")).thenReturn(true);
 
             String[] properties = {"nullProp"};
-            mockIsFalseToCallRealMethod(mockedStatic, properties);
-            assertFalse(isFalse(mockProject, "nullProp"));
+            mockPropertyIsFalseToCallRealMethod(mockedStatic, properties);
+            assertFalse(propertyIsFalse(mockProject, "nullProp"));
         }
     }
 
-    private void mockIsFalseToCallRealMethod(MockedStatic<MavenParametersUtils> mockedStatic, String[] properties) {
+    private void mockPropertyIsFalseToCallRealMethod(MockedStatic<MavenParametersUtils> mockedStatic, String[] properties) {
         for (String property: properties) {
-            mockedStatic.when(() -> isFalse(mockProject, property))
+            mockedStatic.when(() -> propertyIsFalse(mockProject, property))
                     .thenCallRealMethod();
         }
     }

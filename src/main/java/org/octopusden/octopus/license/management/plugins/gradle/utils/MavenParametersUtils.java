@@ -33,7 +33,7 @@ public final class MavenParametersUtils {
      * @return {@code true} if the property value is {@code false}, {@code null}, {@code "false"}, or {@code "null"};
      *         {@code false} otherwise
      */
-    public static Boolean isFalse(Project project, String property) {
+    public static Boolean propertyIsFalse(Project project, String property) {
         String propertyValue = getLicenseParametersProperty(project, property);
 
         if (propertyValue == null) {
