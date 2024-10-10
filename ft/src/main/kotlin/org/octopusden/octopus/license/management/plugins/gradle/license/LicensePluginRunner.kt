@@ -59,6 +59,7 @@ fun gradleProcessInstance(init: TestGradleDSL.() -> Unit): Pair<ProcessInstance,
     )
 
     val missingProperties = listOfNotNull(
+        if (licenseMavenPluginVersion == null) "OCTOPUS_LICENSE_MAVEN_PLUGIN_VERSION" else null,
         if (licenseRegistryGitRepository == null) "LICENSE_REGISTRY_GIT_REPOSITORY" else null,
         if (octopusReleaseManagementVersion == null) "OCTOPUS_RELEASE_MANAGEMENT_PLUGIN_VERSION or OCTOPUS_RELEASE_MANAGEMENT_GRADLE_PLUGIN_VERSION" else null
     )
