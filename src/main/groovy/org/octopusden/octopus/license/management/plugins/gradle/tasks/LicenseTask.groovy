@@ -134,9 +134,6 @@ class LicenseTask extends DefaultTask {
                         .replaceAll(/^['"]|['"]$/, '')
                         .plus(" -Dlicense.output.directory=${licensesDirectory.toPath().toAbsolutePath().normalize()}")
                         .split(" ")
-                        .collect { param ->
-                            param
-                        }
             } else {
                 LOGGER.warn(("You're using a legacy method for parameter configuration that could be deleted in future. Please wrap all of the parameters in the 'maven-license-parameters'"))
                 def licenseRegistryGitRepository = project.findProperty("license-registry.git-repository")
