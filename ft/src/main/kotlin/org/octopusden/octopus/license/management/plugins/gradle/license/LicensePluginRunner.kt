@@ -16,7 +16,6 @@ import java.util.stream.Collectors
 
 val LOGGER = LoggerFactory.getLogger("org.octopusden.octopus.license.management.plugins.gradle.license")
 const val LICENSE_REGISTRY_GIT_REPOSITORY_PROPERTY = "license-registry.git-repository"
-const val OCTOPUS_LICENSE_MAVEN_PLUGIN_VERSION = "2.0.8"
 
 open class TestGradleDSL {
     lateinit var testProjectName: String
@@ -52,7 +51,7 @@ fun gradleProcessInstance(init: TestGradleDSL.() -> Unit): Pair<ProcessInstance,
     }
 
     val licenseManagementVersion = System.getenv().getOrDefault("LICENSE_MANAGEMENT_VERSION", "1.0-SNAPSHOT")
-    val licenseMavenPluginVersion = System.getenv().getOrDefault("OCTOPUS_LICENSE_MAVEN_PLUGIN_VERSION", OCTOPUS_LICENSE_MAVEN_PLUGIN_VERSION)
+    val licenseMavenPluginVersion = System.getenv("OCTOPUS_LICENSE_MAVEN_PLUGIN_VERSION")
     val supportedGroups = System.getenv("SUPPORTED_GROUPS")
     val licenseRegistryGitRepository = System.getenv("LICENSE_REGISTRY_GIT_REPOSITORY")
     val octopusReleaseManagementVersion = System.getenv().getOrDefault(
