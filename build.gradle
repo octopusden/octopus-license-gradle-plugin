@@ -24,6 +24,7 @@ dependencies {
     testImplementation "org.junit.jupiter:junit-jupiter-api:${project['junit-jupiter.version']}"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${project['junit-jupiter.version']}"
     testImplementation "org.mockito:mockito-core:${project['mockito-core.version']}"
+    testImplementation "org.mockito:mockito-inline:${project['mockito-core.version']}"
 }
 
 gradlePlugin {

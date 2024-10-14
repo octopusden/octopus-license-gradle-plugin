@@ -16,8 +16,8 @@ dependencies {
 }
 
 task zipDistributive(type:Zip) {
-    archiveName     "single-module.zip"
-    destinationDir file('build/distr')
+    archiveFileName = "single-module.zip"
+    destinationDirectory = file('build/distr')
     from configurations.deps
 }
 

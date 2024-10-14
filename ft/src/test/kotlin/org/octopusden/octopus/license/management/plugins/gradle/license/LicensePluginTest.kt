@@ -334,6 +334,20 @@ class LicensePluginTest {
                 ZipTreeEntry("sshd-core-2.6.0.jar")
             )
     }
+
+    @Test
+    fun testPropertiesOverride() {
+        val projectPath = gradle {
+            testProjectName = "properties-override"
+        }
+        assertThat(zipTreeEntries(projectPath.resolve("build/distr/properties-override.zip")))
+            .contains(
+                ZipTreeEntry("licenses/apache-2.0 - apache-2.0.txt"),
+                ZipTreeEntry("licenses/THIRD-PARTY.txt"),
+                ZipTreeEntry("sshd-common-2.6.0.jar"),
+                ZipTreeEntry("sshd-core-2.6.0.jar")
+            )
+    }
 }
 
 data class LicensePom(val dependencies: Collection<LicenseDependency>)
