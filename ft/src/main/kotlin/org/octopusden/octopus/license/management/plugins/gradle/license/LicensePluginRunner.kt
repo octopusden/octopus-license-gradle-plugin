@@ -16,11 +16,11 @@ import java.util.stream.Collectors
 
 val LOGGER = LoggerFactory.getLogger("org.octopusden.octopus.license.management.plugins.gradle.license")
 const val LICENSE_REGISTRY_GIT_REPOSITORY_PROPERTY = "license-registry.git-repository"
-const val OCTOPUS_LICENSE_MAVEN_PLUGIN_VERSION = "2.0.8"
 
 open class TestGradleDSL {
     lateinit var testProjectName: String
     var additionalArguments: Array<String> = arrayOf()
+    var additionalEnvVariables: Map<String, String> = mapOf()
     var tasks: Array<String> = arrayOf()
     var clean = false
 }
@@ -49,14 +49,27 @@ fun gradleProcessInstance(init: TestGradleDSL.() -> Unit): Pair<ProcessInstance,
     if (!Files.isDirectory(projectPath)) {
         throw IllegalArgumentException("The specified project '${testGradleDSL.testProjectName}' hasn't been found at $projectPath")
     }
-    val lrgr = System.getProperty(LICENSE_REGISTRY_GIT_REPOSITORY_PROPERTY,
-        System.getenv().getOrDefault(LICENSE_REGISTRY_GIT_REPOSITORY_PROPERTY,
-            System.getenv(LICENSE_REGISTRY_GIT_REPOSITORY_PROPERTY.uppercase().replace(Regex("[.-]"), "_"))))
 
-    val licenseManagementVersion = System.getenv().getOrDefault("license-management.version", "1.0-SNAPSHOT")
-    val licenseMavenPluginVersion = System.getenv().getOrDefault("octopus-license-maven-plugin.version", OCTOPUS_LICENSE_MAVEN_PLUGIN_VERSION)
-    val supportedGroups = System.getenv().getOrDefault("supported-groups", System.getenv("SUPPORTED_GROUPS"))
-    val licenseRegistryGitRepository = System.getenv().getOrDefault("license-registry.git-repository", System.getenv("LICENSE_REGISTRY_GIT_REPOSITORY"))
+    val licenseManagementVersion = System.getenv().getOrDefault("OCTOPUS_LICENSE_GRADLE_PLUGIN_VERSION", "1.0-SNAPSHOT")
+    val licenseMavenPluginVersion = System.getenv("OCTOPUS_LICENSE_MAVEN_PLUGIN_VERSION")
+    val supportedGroups = System.getenv("SUPPORTED_GROUPS")
+    val licenseRegistryGitRepository = System.getenv("LICENSE_REGISTRY_GIT_REPOSITORY")
+    val octopusReleaseManagementVersion = System.getenv().getOrDefault(
+        "OCTOPUS_RELEASE_MANAGEMENT_PLUGIN_VERSION", System.getenv("OCTOPUS_RELEASE_MANAGEMENT_GRADLE_PLUGIN_VERSION")
+    )
+
+    val missingProperties = listOfNotNull(
+        if (licenseMavenPluginVersion == null) "OCTOPUS_LICENSE_MAVEN_PLUGIN_VERSION" else null,
+        if (licenseRegistryGitRepository == null) "LICENSE_REGISTRY_GIT_REPOSITORY" else null,
+        if (octopusReleaseManagementVersion == null) "OCTOPUS_RELEASE_MANAGEMENT_PLUGIN_VERSION or OCTOPUS_RELEASE_MANAGEMENT_GRADLE_PLUGIN_VERSION" else null
+    )
+
+    if (missingProperties.isNotEmpty()) {
+        throw IllegalArgumentException(
+            "The following properties must be set on environment variables:\n" +
+                    missingProperties.joinToString("\n") { "  - $it" }
+        )
+    }
 
     val mavenLicenseParameters = "-Dlicense-registry.git-repository=$licenseRegistryGitRepository " +
             "-Dlicense.skip=false " +
@@ -70,6 +83,7 @@ fun gradleProcessInstance(init: TestGradleDSL.() -> Unit): Pair<ProcessInstance,
         "--info",
         "build",
         "-Plicense-management.version=${licenseManagementVersion}",
+        "-Poctopus-release-management.version=${octopusReleaseManagementVersion}",
         "-Puse_dev_repository=plugins",
         "-Pmaven-license-parameters=\'${mavenLicenseParameters}\'",
         "-Psupported-groups=${supportedGroups}"
@@ -85,7 +99,7 @@ fun gradleProcessInstance(init: TestGradleDSL.() -> Unit): Pair<ProcessInstance,
     }
     return Pair(ProcessBuilders
             .newProcessBuilder<ProcessBuilder>(LocalProcessSpec.LOCAL_COMMAND)
-            .envVariables(mapOf("JAVA_HOME" to System.getProperties().getProperty("java.home")))
+            .envVariables(mapOf("JAVA_HOME" to System.getProperties().getProperty("java.home")) + testGradleDSL.additionalEnvVariables)
             .logger { it.logger(LOGGER) }
             .defaultExtensionMapping()
             .workDirectory(projectPath)
