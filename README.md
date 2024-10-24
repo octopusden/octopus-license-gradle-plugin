@@ -1,5 +1,6 @@
 # License Management Gradle Plugin
 
+
 - [The License Plugins DSL](#the-license-plugins-dsl)
     - [License Legacy Plugin Application](#license-legacy-plugin-application)
     - [Include Licenses in Distribution](#include-licenses-in-distribution)
