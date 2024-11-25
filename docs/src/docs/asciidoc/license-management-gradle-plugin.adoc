@@ -31,6 +31,12 @@ pluginManagement {
 }
 ----
 
+gradle.properties
+[subs="attributes"]
+----
+octopus-license-management-gradle-plugin.version={version-label}
+----
+
 ==== License legacy Plugin Application
 
 Applying the _org.octopusden.octopus.license-management_ plugin with the buildscript block:
