@@ -50,7 +50,7 @@ fun gradleProcessInstance(init: TestGradleDSL.() -> Unit): Pair<ProcessInstance,
         throw IllegalArgumentException("The specified project '${testGradleDSL.testProjectName}' hasn't been found at $projectPath")
     }
 
-    val licenseManagementVersion = System.getenv().getOrDefault("OCTOPUS_LICENSE_GRADLE_PLUGIN_VERSION", "1.0-SNAPSHOT")
+    val octopusLicenseManagementGradlePluginVersion = System.getenv().getOrDefault("OCTOPUS_LICENSE_GRADLE_PLUGIN_VERSION", "1.0-SNAPSHOT")
     val licenseMavenPluginVersion = System.getenv("OCTOPUS_LICENSE_MAVEN_PLUGIN_VERSION")
     val supportedGroups = System.getenv("SUPPORTED_GROUPS")
     val licenseRegistryGitRepository = System.getenv("LICENSE_REGISTRY_GIT_REPOSITORY")
@@ -82,7 +82,7 @@ fun gradleProcessInstance(init: TestGradleDSL.() -> Unit): Pair<ProcessInstance,
         "-s",
         "--info",
         "build",
-        "-Plicense-management.version=${licenseManagementVersion}",
+        "-Poctopus-license-management-gradle-plugin.version=${octopusLicenseManagementGradlePluginVersion}",
         "-Poctopus-release-management.version=${octopusReleaseManagementVersion}",
         "-Puse_dev_repository=plugins",
         "-Pmaven-license-parameters=\'${mavenLicenseParameters}\'",
