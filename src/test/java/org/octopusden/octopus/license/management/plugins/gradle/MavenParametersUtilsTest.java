@@ -70,21 +70,18 @@ public class MavenParametersUtilsTest {
 
     /**
      * Tests that {@code propertyIsFalse()} returns {@code true} for properties
-     * with values {@code false}, {@code null}, {@code "false"}, {@code "null"} in
+     * with values {@code false}, {@code "false"} in
      * {@code maven-license-parameters} or project properties.
      */
     @Test
-    void testPropertyIsFalseForFalseOrNullValues() {
+    void testPropertyIsFalseForFalseValue() {
         try (MockedStatic<MavenParametersUtils> mockedStatic = mockStatic(MavenParametersUtils.class)) {
             when(mockProject.findProperty("falseProp")).thenReturn(false);
-            when(mockProject.findProperty("nullProp")).thenReturn(null);
 
             mockedStatic.when(() -> getLicenseParametersProperty(mockProject, "falseStringProp"))
                     .thenReturn("false");
-            mockedStatic.when(() -> getLicenseParametersProperty(mockProject, "nullStringProp"))
-                    .thenReturn("null");
 
-            String[] properties = {"falseProp", "newProp", "falseStringProp", "nullStringProp"};
+            String[] properties = {"falseProp", "falseStringProp"};
             mockPropertyIsFalseToCallRealMethod(mockedStatic, properties);
             for (String property: properties) assertTrue(propertyIsFalse(mockProject, property));
         }
@@ -92,16 +89,19 @@ public class MavenParametersUtilsTest {
 
     /**
      * Tests that {@code propertyIsFalse()} returns {@code false} for properties
-     * with values other than {@code false}, {@code null}, {@code "false"}, {@code "null"} in
+     * with values other than {@code false}, {@code "false"} in
      * {@code maven-license-parameters} or project properties.
      */
     @Test
     void testPropertyIsFalseForNonFalseValues() {
         try (MockedStatic<MavenParametersUtils> mockedStatic = mockStatic(MavenParametersUtils.class)) {
             when(mockProject.findProperty("trueProp")).thenReturn(true);
+            when(mockProject.findProperty("nullProp")).thenReturn(null);
 
             mockedStatic.when(() -> getLicenseParametersProperty(mockProject, "trueStringProp"))
                     .thenReturn("true");
+            mockedStatic.when(() -> getLicenseParametersProperty(mockProject, "nullStringProp"))
+                    .thenReturn("null");
             mockedStatic.when(() -> getLicenseParametersProperty(mockProject, "emptyStringProp"))
                     .thenReturn("");
             mockedStatic.when(() -> getLicenseParametersProperty(mockProject, "whitespaceStringProp"))
@@ -109,7 +109,7 @@ public class MavenParametersUtilsTest {
             mockedStatic.when(() -> getLicenseParametersProperty(mockProject, "randomStringProp"))
                     .thenReturn("random");
 
-            String[] properties = {"trueStringProp", "emptyStringProp", "whitespaceStringProp", "randomStringProp"};
+            String[] properties = {"trueProp", "nullProp", "trueStringProp", "nullStringProp", "emptyStringProp", "whitespaceStringProp", "randomStringProp"};
             mockPropertyIsFalseToCallRealMethod(mockedStatic, properties);
             for (String property: properties) assertFalse(propertyIsFalse(mockProject, property));
         }
@@ -135,7 +135,7 @@ public class MavenParametersUtilsTest {
 
             when(mockProject.findProperty("falseStringProp")).thenReturn(true);
             when(mockProject.findProperty("trueStringProp")).thenReturn(false);
-            when(mockProject.findProperty("nullStringProp")).thenReturn(true);
+            when(mockProject.findProperty("nullStringProp")).thenReturn(false);
             when(mockProject.findProperty("emptyStringProp")).thenReturn(false);
             when(mockProject.findProperty("randomStringProp")).thenReturn(false);
 
@@ -143,7 +143,7 @@ public class MavenParametersUtilsTest {
             mockPropertyIsFalseToCallRealMethod(mockedStatic, properties);
             assertTrue(propertyIsFalse(mockProject, "falseStringProp"));
             assertFalse(propertyIsFalse(mockProject, "trueStringProp"));
-            assertTrue(propertyIsFalse(mockProject, "nullStringProp"));
+            assertFalse(propertyIsFalse(mockProject, "nullStringProp"));
             assertFalse(propertyIsFalse(mockProject, "emptyStringProp"));
             assertFalse(propertyIsFalse(mockProject, "randomStringProp"));
         }

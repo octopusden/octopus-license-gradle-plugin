@@ -30,7 +30,7 @@ public final class MavenParametersUtils {
      *
      * @param project the project containing the property
      * @param property the name of the property to check
-     * @return {@code true} if the property value is {@code false}, {@code null}, {@code "false"}, or {@code "null"};
+     * @return {@code true} if the property value is {@code false} or {@code "false"};
      *         {@code false} otherwise
      */
     public static Boolean propertyIsFalse(Project project, String property) {
@@ -40,6 +40,6 @@ public final class MavenParametersUtils {
             propertyValue = String.valueOf(project.getRootProject().findProperty(property));
         }
 
-        return propertyValue == null || propertyValue.equalsIgnoreCase("false") || propertyValue.equalsIgnoreCase("null");
+        return propertyValue.equalsIgnoreCase("false");
     }
 }
