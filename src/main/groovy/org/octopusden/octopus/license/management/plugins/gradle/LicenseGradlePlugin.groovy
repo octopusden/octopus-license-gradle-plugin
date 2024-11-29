@@ -116,7 +116,9 @@ class LicenseGradlePlugin implements Plugin<Project> {
             onlyCurrentProject = onlyCurrent
         }
         Task processLicenses = project.getTasks().create(processLicensesTaskName, LicenseTask.class)
+        def isLicenseCheckRequired = propertyIsFalse(project, LICENSE_SKIP_PROPERTY)
+        processLicensedDependencies.onlyIf { return isLicenseCheckRequired }
         processLicenses.dependsOn(processLicensedDependencies)
-        processLicenses.onlyIf { return propertyIsFalse(project, LICENSE_SKIP_PROPERTY) }
+        processLicenses.onlyIf { return isLicenseCheckRequired }
     }
 }
