@@ -133,6 +133,30 @@ processResources {
 }
 ----
 
+==== Include/Exclude processing configurations
+
+License Management scans configurations filtering by wide '.\*' regex pattern and excludes by 'test.*'. These scopes can be managed using configuration:
+
+.build.gradle
+[source,groovy]
+----
+licenseManagement {
+    includeConfigurations("includeConfigurationOne", "includeConfigurationTwo")
+    excludeConfigurations("excludeConfigurationOne", "excludeConfigurationTwo")
+}
+----
+
+or defining patterns directly
+
+.build.gradle
+[source,groovy]
+----
+licenseManagement {
+    includePattern = "includeConfiguration.*"
+    excludePattern = "excludeConfigutation.*"
+}
+----
+
 === Verify used licenses
 
 To verify used licenses specify dependency for *build* task on *processLicenses* task

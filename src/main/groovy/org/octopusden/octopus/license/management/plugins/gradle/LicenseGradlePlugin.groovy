@@ -2,6 +2,7 @@ package org.octopusden.octopus.license.management.plugins.gradle
 
 import com.github.gradle.node.npm.task.NpmTask
 import com.github.gradle.node.npm.task.NpxTask
+import org.octopusden.octopus.license.management.plugins.gradle.tasks.LicenseManagementExtension
 import org.octopusden.octopus.license.management.plugins.gradle.tasks.ProcessNpmLicensesTask
 import org.octopusden.octopus.license.management.plugins.gradle.tasks.LicenseTask
 import org.octopusden.octopus.license.management.plugins.gradle.tasks.LicensedDependenciesAnalyzingTask
@@ -99,6 +100,9 @@ class LicenseGradlePlugin implements Plugin<Project> {
 
     @Override
     void apply(Project project) {
+        if (!project.extensions.findByName("licenseManagement")) {
+            project.extensions.create("licenseManagement", LicenseManagementExtension)
+        }
         if (GradleVersion.current() >= GradleVersion.version(MINIMAL_GRADLE_VERSION_NODE_PLUGIN)) {
             applyNodePlugins(project)
             configureNodePlugins(project)
