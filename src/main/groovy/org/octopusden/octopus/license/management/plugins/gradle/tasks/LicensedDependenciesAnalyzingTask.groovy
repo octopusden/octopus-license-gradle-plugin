@@ -25,11 +25,8 @@ class LicensedDependenciesAnalyzingTask extends DefaultTask {
     public static final String SUPPORTED_GROUPS = "supported-groups"
     public static final String CRS_URL ="component-registry-service-url"
 
-    @Input
-    String excludePattern = "test.*"
-
-    @Input
-    String includePattern = ".*"
+    private static final String DEFAULT_EXCLUDE_PATTERN = "test.*"
+    private static final String DEFAULT_INCLUDE_PATTERN = ".*"
 
     @Input
     String destinationDir = "build"
@@ -61,6 +58,16 @@ class LicensedDependenciesAnalyzingTask extends DefaultTask {
             logger.info("Skip extracting licenses for dependencies because of offline mode")
             return
         }
+
+        final LicenseManagementExtension licenseManagementExtension = getProject()
+                .getProject()
+                .getExtensions()
+                .getByType(LicenseManagementExtension.class)
+
+        def includePattern = licenseManagementExtension.includePattern ?: DEFAULT_INCLUDE_PATTERN
+        def excludePattern = licenseManagementExtension.excludePattern ?: DEFAULT_EXCLUDE_PATTERN
+
+        logger.info("includePattern: '{}', excludePattern: '{}'", includePattern, excludePattern)
         def resolvedArtifacts = new HashSet<MavenGAV>()
         def resProblemsMessages = new StringBuilder()
 
