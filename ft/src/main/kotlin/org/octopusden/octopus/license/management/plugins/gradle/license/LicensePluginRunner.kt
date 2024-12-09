@@ -50,7 +50,7 @@ fun gradleProcessInstance(init: TestGradleDSL.() -> Unit): Pair<ProcessInstance,
         throw IllegalArgumentException("The specified project '${testGradleDSL.testProjectName}' hasn't been found at $projectPath")
     }
 
-    val octopusLicenseManagementGradlePluginVersion = System.getenv().getOrDefault("OCTOPUS_LICENSE_GRADLE_PLUGIN_VERSION", "1.0-SNAPSHOT")
+    val octopusLicenseManagementGradlePluginVersion = System.getenv().getOrDefault("OCTOPUS_LICENSE_GRADLE_PLUGIN_VERSION", "2.0-SNAPSHOT")
     val licenseMavenPluginVersion = System.getenv("OCTOPUS_LICENSE_MAVEN_PLUGIN_VERSION")
     val supportedGroups = System.getenv("SUPPORTED_GROUPS")
     val licenseRegistryGitRepository = System.getenv("LICENSE_REGISTRY_GIT_REPOSITORY")

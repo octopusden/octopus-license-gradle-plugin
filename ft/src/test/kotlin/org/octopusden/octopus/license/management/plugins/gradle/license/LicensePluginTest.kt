@@ -40,15 +40,11 @@ class LicensePluginTest {
             )
     }
 
-    /**
-     * Test that no license check is performed for org.octopusden.octopus dependencies if excludeIbmGroups is configured.
-     * Test that no license check is performed for org.octopusden.octopus dependencies if excludeIbmGroups is configured
-     */
     @Test
-    fun testOctopusDependencies() {
+    fun testSupportedGroups() {
         val projectPath = gradle {
-            testProjectName = "octopus-dependencies"
-            additionalArguments = arrayOf("-PexcludeIbmGroups", "-Psupported-groups=org.octopusden.octopus")
+            testProjectName = "supported-groups"
+            additionalArguments = arrayOf("-PexcludeIbmGroups", "-Psupported-groups=org.octopusden.octopus.releng,org.octopusden.octopus.jira")
         }
         val jsonDependenciesPath = projectPath.resolve("build/dependencies.json")
         assertThat(jsonDependenciesPath).exists()
@@ -117,30 +113,6 @@ class LicensePluginTest {
         assertThat(jsonDependenciesPath).exists()
         assertThat(zipTreeEntries(projectPath.resolve("build/distr/single-module.zip"))).containsExactlyInAnyOrderElementsOf(
             expectedEntries
-        )
-    }
-
-    companion object {
-        @JvmStatic
-        fun includePatternData(): Stream<Arguments> = Stream.of(
-            Arguments.of(
-                "log.*",
-                listOf(
-                    ZipTreeEntry("licenses/apache-2.0 - apache-2.0.txt"),
-                    ZipTreeEntry("slf4j-api-1.6.1.jar"),
-                    ZipTreeEntry("log4j-api-2.19.0.jar"),
-                    ZipTreeEntry("licenses/THIRD-PARTY.txt")
-                )
-            ),
-            Arguments.of(
-                "slf.*",
-                listOf(
-                    ZipTreeEntry("licenses/mit - mit.txt"),
-                    ZipTreeEntry("slf4j-api-1.6.1.jar"),
-                    ZipTreeEntry("log4j-api-2.19.0.jar"),
-                    ZipTreeEntry("licenses/THIRD-PARTY.txt")
-                )
-            )
         )
     }
 
@@ -347,6 +319,30 @@ class LicensePluginTest {
                 ZipTreeEntry("sshd-common-2.6.0.jar"),
                 ZipTreeEntry("sshd-core-2.6.0.jar")
             )
+    }
+
+    companion object {
+        @JvmStatic
+        fun includePatternData(): Stream<Arguments> = Stream.of(
+            Arguments.of(
+                "log.*",
+                listOf(
+                    ZipTreeEntry("licenses/apache-2.0 - apache-2.0.txt"),
+                    ZipTreeEntry("slf4j-api-1.6.1.jar"),
+                    ZipTreeEntry("log4j-api-2.19.0.jar"),
+                    ZipTreeEntry("licenses/THIRD-PARTY.txt")
+                )
+            ),
+            Arguments.of(
+                "slf.*",
+                listOf(
+                    ZipTreeEntry("licenses/mit - mit.txt"),
+                    ZipTreeEntry("slf4j-api-1.6.1.jar"),
+                    ZipTreeEntry("log4j-api-2.19.0.jar"),
+                    ZipTreeEntry("licenses/THIRD-PARTY.txt")
+                )
+            )
+        )
     }
 }
 

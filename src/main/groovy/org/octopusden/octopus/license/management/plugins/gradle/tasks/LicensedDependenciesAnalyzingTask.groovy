@@ -1,8 +1,5 @@
 package org.octopusden.octopus.license.management.plugins.gradle.tasks
 
-import org.octopusden.octopus.components.registry.client.impl.ClassicComponentsRegistryServiceClient
-import org.octopusden.octopus.components.registry.client.impl.ClassicComponentsRegistryServiceClientUrlProvider
-import org.octopusden.octopus.license.management.plugins.gradle.dto.MavenGAV
 import groovy.json.JsonBuilder
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
@@ -15,6 +12,9 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.util.GradleVersion
+import org.octopusden.octopus.components.registry.client.impl.ClassicComponentsRegistryServiceClient
+import org.octopusden.octopus.components.registry.client.impl.ClassicComponentsRegistryServiceClientUrlProvider
+import org.octopusden.octopus.license.management.plugins.gradle.dto.MavenGAV
 
 /**
  * Create json file with projects dependencies.
@@ -165,7 +165,9 @@ class LicensedDependenciesAnalyzingTask extends DefaultTask {
                     }
                 )
                 try {
-                    supportedGroups.addAll(componentsRegistryServiceClient.supportedGroupIds)
+                    def supportedGroupIds = componentsRegistryServiceClient.supportedGroupIds
+                    logger.info("Supported groups from Components Registry: ${supportedGroupIds.join(",")}")
+                    supportedGroups.addAll(supportedGroupIds)
                 } catch (Exception e) {
                     throw new IllegalStateException("Failed to get a successful response for supported groups from $componentsRegistryApiUrl!", e)
                 }
@@ -175,10 +177,12 @@ class LicensedDependenciesAnalyzingTask extends DefaultTask {
                 throw new IllegalArgumentException("Can't found any supported groups, please check your $SUPPORTED_GROUPS or $CRS_URL values!")
             }
 
+            def externalDependencies = resolvedArtifacts.findAll { artifact ->
+                supportedGroups.findAll { group -> artifact.getGroup().startsWith(group.toString()) }.size() == 0
+            }.collect { it }
+            logger.info("External dependencies:\n${externalDependencies.collect { a -> a.logString() }.join(",\n")}")
             def builder = new JsonBuilder()
-            supportedGroups.each { group ->
-                builder(resolvedArtifacts.findAll { !it.getGroup().startsWith(group.toString()) && !it.getGroup().startsWith(group.toString()) }.collect { it })
-            }
+            builder(externalDependencies)
             dependenciesListFile.write(builder.toPrettyString())
         }
         printFoundProblems(resProblemsMessages)

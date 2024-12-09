@@ -10,6 +10,7 @@ configurations {
 
 dependencies {
     oct "org.octopusden.octopus.releng:versions-api:2.0.8"
+    oct "org.octopusden.octopus.jira:common:2.0.14"
 }
 
 task zipDistributive(type:Zip) {

@@ -3,7 +3,7 @@ License management gradle plugin
 v: New hope
 :toc:
 :toclevels: 4
-:version-label: 1.0-SNAPSHOT
+:version-label: 2.0-SNAPSHOT
 
 == Automated License Control
 
