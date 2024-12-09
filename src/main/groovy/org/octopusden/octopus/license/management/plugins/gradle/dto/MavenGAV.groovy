@@ -11,4 +11,8 @@ class MavenGAV {
     String version
     String classifier
     String extension
+
+    def logString() {
+        "$group:$artifact:$version${classifier != null ? ":$classifier" : ""}"
+    }
 }
