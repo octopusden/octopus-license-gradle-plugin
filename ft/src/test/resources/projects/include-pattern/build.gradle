@@ -15,9 +15,10 @@ dependencies {
    slf4j  group: 'org.slf4j', name: 'slf4j-api', version: '1.6.1'
 }
 
-processLicensedDependencies {
+licenseManagement {
     includePattern = INCLUDE_PATTERN
 }
+
 
 task zipDistributive(type:Zip) {
     archiveFileName = "single-module.zip"
