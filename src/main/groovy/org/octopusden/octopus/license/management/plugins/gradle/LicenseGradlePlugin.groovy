@@ -1,6 +1,7 @@
 package org.octopusden.octopus.license.management.plugins.gradle
 
 import com.github.gradle.node.npm.task.NpmTask
+import com.github.gradle.node.yarn.task.YarnTask
 import com.github.gradle.node.npm.task.NpxTask
 import org.octopusden.octopus.license.management.plugins.gradle.tasks.LicenseManagementExtension
 import org.octopusden.octopus.license.management.plugins.gradle.tasks.ProcessNpmLicensesTask
@@ -41,29 +42,47 @@ class LicenseGradlePlugin implements Plugin<Project> {
         }
     }
 
-    private boolean nodeOnlyIf(Project project) {
+    private static boolean nodeOnlyIf(Project project) {
         return propertyIsFalse(project, LICENSE_SKIP_PROPERTY) && propertyIsFalse(project, NODE_SKIP_PROPERTY) && !project.gradle.startParameter.offline
     }
 
-    private String getEnvPath(Project project) {
+    private static String getEnvPath(Project project) {
         return ProcessNpmLicensesTask.getEnvPath(project)
+    }
+
+    private static ProcessNpmLicensesTask getProcessNpmLicensesTask(Project project) {
+        project.tasks.findByName(ProcessNpmLicensesTask.NAME) as ProcessNpmLicensesTask
+    }
+
+    private static File getNodeLicenseWorkDir(Project project) {
+        return getProcessNpmLicensesTask(project).getWorkingDir(project)
+    }
+
+    private static boolean yarnProject(Project project) {
+        return new File(getNodeLicenseWorkDir(project), 'yarn.lock').exists()
     }
 
     private void addNodeTasks(Project project) {
         boolean useNode = nodeOnlyIf(project)
         if (useNode) {
-            def path = getEnvPath(project)
             project.tasks.register("nodeModulesInstall", NpmTask) {
                 group = null
                 args = ['install']
                 environment['PATH'] = getEnvPath(project)
                 doFirst {
-                    ProcessNpmLicensesTask processNpmLicensesTask = project.tasks.findByName(ProcessNpmLicensesTask.NAME)
-                    def nodeLicenseWorkDir = ProcessNpmLicensesTask.getWorkingDir(project)
-                    assert new File(nodeLicenseWorkDir, 'package.json').exists()
+                    assert new File(getNodeLicenseWorkDir(project), 'package.json').exists()
+                }
+            }
+            project.tasks.register("yarnModulesInstall", YarnTask) {
+                group = null
+                args = ['install']
+                environment['PATH'] = getEnvPath(project)
+                doFirst {
+                    assert new File(getNodeLicenseWorkDir(project), 'package.json').exists()
                 }
             }
             project.tasks.register("nodeLicenseCheckerInstall", NpmTask) {
+                dependsOn("npmSetup")
                 args = ['install', '-g', 'license-checker']
                 environment['PATH'] = getEnvPath(project)
                 group = null
@@ -77,19 +96,27 @@ class LicenseGradlePlugin implements Plugin<Project> {
             }
             project.tasks.create(ProcessNpmLicensesTask.NAME, ProcessNpmLicensesTask) {
                 group = NPM_LICENSE_GROUP
-                dependsOn(['nodeLicenseCheckerInstall', 'nodeModulesInstall'])
+                dependsOn(['nodeLicenseCheckerInstall', 'nodeModulesInstall', 'yarnModulesInstall'])
             }
             project.afterEvaluate {
-                ProcessNpmLicensesTask processNpmLicensesTask = project.tasks.findByName(ProcessNpmLicensesTask.NAME)
+                ProcessNpmLicensesTask processNpmLicensesTask = getProcessNpmLicensesTask(project)
                 if (processNpmLicensesTask.licenseRegistry == null) {
                     throw new IllegalArgumentException("Property 'license-registry.git-repository' must be specified")
                 }
+                project.tasks.findByName('yarnSetup')?.mustRunAfter('nodeLicenseCheckerInstall')
                 if (processNpmLicensesTask.production) {
                     (project.tasks.findByName('nodeModulesInstall') as NpmTask)?.args.with {
                         addAll('--omit=dev')
                     }
                 }
                 project.node.nodeProjectDir = processNpmLicensesTask.start
+            }
+            project.gradle.taskGraph.whenReady {
+                if (yarnProject(project)) {
+                    project.tasks.findByName('nodeModulesInstall')?.enabled = false
+                } else {
+                    project.tasks.findByName('yarnModulesInstall')?.enabled = false
+                }
             }
         } else {
             project.tasks.create(ProcessNpmLicensesTask.NAME, DefaultTask) {

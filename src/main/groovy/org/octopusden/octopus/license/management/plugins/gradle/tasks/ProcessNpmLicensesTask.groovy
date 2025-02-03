@@ -15,6 +15,7 @@
 package org.octopusden.octopus.license.management.plugins.gradle.tasks
 
 import com.github.gradle.node.npm.task.NpxTask
+import groovy.ant.FileNameFinder
 import org.octopusden.octopus.license.management.plugins.gradle.utils.LicenseRegistryClient
 import org.gradle.api.Project
 import org.gradle.api.tasks.Input
@@ -222,6 +223,7 @@ class ProcessNpmLicensesTask extends DefaultTask {
             if (onlyAllow) args.addAll('--onlyAllow', onlyAllow)
             if (excludePrivatePackages) args.addAll("--excludePrivatePackages")
             if (packages) args.addAll("--packages", packages)
+            if (excludePackages) args.addAll("--excludePackages", excludePackages)
             if (exclude) args.addAll("--exclude", exclude)
             if (failOn) args.addAll("--failOn", failOn)
             if (summary) args.addAll("--summary")
@@ -239,6 +241,12 @@ class ProcessNpmLicensesTask extends DefaultTask {
         runLicenseChecker(workingDir, jsonFile)
         File licenseFile = new File(outDir, "${outFileName}.txt")
         saveLicenses(workingDir, jsonFile, outDir, licenseFile)
+    }
+
+    boolean fileExistByPattern(File dir, String filePattern) {
+        if (filePattern.matches('.*[*?].*')) {
+            return new FileNameFinder().getFileNames(dir.path, filePattern).size() > 0
+        } else return false
     }
 
     def saveLicenses(File workDir, File jsonFile, File licenseDir, File mainLicenseFile) {
@@ -262,9 +270,9 @@ class ProcessNpmLicensesTask extends DefaultTask {
                     text = "($alias) " + text
                 }
                 dependencies.add(text)
-                def license = alias ?: v.licenses
+                String license = alias ?: v.licenses
                 File licenseFile = new File("${licenseDir}/${license}.txt")
-                if (!licenseFile.exists()) {
+                if (!licenseFile.exists() && !fileExistByPattern(licenseDir, license)) {
                     def textLicense = null
                     if (fileList.containsKey(license)) {
                         textLicense = licenseRegistry?.getFileContent(fileList.get(license))
