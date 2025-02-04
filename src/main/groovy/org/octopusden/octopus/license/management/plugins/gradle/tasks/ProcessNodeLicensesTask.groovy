@@ -4,13 +4,13 @@
  *     plugins {
  *       id('org.octopusden.octopus.license-management')
  *     }
- *     processNpmLicenses {
+ *     processNodeLicenses {
  *        //https://www.npmjs.com/package/license-checker#options
  *        excludePackages = 'dom-walk@0.1.2;min-document@2.19.0'
  *        start = file("$projectDir/app")
  *    }
  *
- * Run: gradlew processNpmLicenses -Plicense.skip=false
+ * Run: gradlew processNodeLicenses -Plicense.skip=false -Pnode.skip=false
  */
 package org.octopusden.octopus.license.management.plugins.gradle.tasks
 
@@ -27,15 +27,15 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.api.DefaultTask
 import org.octopusden.octopus.license.management.plugins.gradle.utils.MavenParametersUtils
 
-class ProcessNpmLicensesTask extends DefaultTask {
+class ProcessNodeLicensesTask extends DefaultTask {
 
-    public final static String NAME = 'processNpmLicenses'
+    public final static String NAME = 'processNodeLicenses'
     public final static String DESCRIPTION = 'https://www.npmjs.com/package/license-checker#options Required:-Plicense.skip=false -Pnode.skip=false'
 
     public final static String LICENSE_REGISTRY_GIT_REPOSITORY_PROPERTY_NAME = "license-registry.git-repository"
     public final static String LICENSE_WHITELIST_PROPERTY_NAME = "license.fileWhitelist"
     public final static String LICENSE_REGISTRY_SEPARATOR = "|"
-    public final static String NPM_LIST_SEPARATOR = ";"
+    public final static String NODE_LIST_SEPARATOR = ";"
     public final static String EOL = System.properties.'line.separator'
 
     public final String licenseRegistryGitRepository = MavenParametersUtils.getLicenseParametersProperty(project, LICENSE_REGISTRY_GIT_REPOSITORY_PROPERTY_NAME)
@@ -144,7 +144,7 @@ class ProcessNpmLicensesTask extends DefaultTask {
         licenseRegistry?.getFileContent("merges.txt")?.eachLine {
             if (it.size()) {
                 List<String> a = it.split("[$LICENSE_REGISTRY_SEPARATOR]")
-                aliases[a[0]] = a.join(NPM_LIST_SEPARATOR)
+                aliases[a[0]] = a.join(NODE_LIST_SEPARATOR)
             }
         }
         return aliases
@@ -160,12 +160,12 @@ class ProcessNpmLicensesTask extends DefaultTask {
 
     String getAllowedLicensesWithAliases(String licenses) {
         def aliases = licenseRegistryAliases
-        return licenses?.split(NPM_LIST_SEPARATOR)?.collect { aliases.get(it, it) }?.join(NPM_LIST_SEPARATOR)
+        return licenses?.split(NODE_LIST_SEPARATOR)?.collect { aliases.get(it, it) }?.join(NODE_LIST_SEPARATOR)
     }
 
     @Internal
     String getDefaultAllowedLicenses() {
-        return licenseRegistryWhiteList?.join(NPM_LIST_SEPARATOR)
+        return licenseRegistryWhiteList?.join(NODE_LIST_SEPARATOR)
     }
 
     @Input
@@ -194,16 +194,16 @@ class ProcessNpmLicensesTask extends DefaultTask {
                 System.env.Path
     }
 
-    ProcessNpmLicensesTask() {
+    ProcessNodeLicensesTask() {
         description = DESCRIPTION
     }
 
-    String npmFile(String f) {
+    String nodeFile(String f) {
         return f.replace('\\', '/')
     }
 
-    String npmFile(File f) {
-        return npmFile(f.path)
+    String nodeFile(File f) {
+        return nodeFile(f.path)
     }
 
     def runLicenseChecker(File workDir, File outFile) {
@@ -228,8 +228,8 @@ class ProcessNpmLicensesTask extends DefaultTask {
             if (failOn) args.addAll("--failOn", failOn)
             if (summary) args.addAll("--summary")
             if (relativeLicensePath) args.addAll("--relativeLicensePath")
-            args.addAll('--out', npmFile(outFile))
-            args.addAll("--start", npmFile(workDir))
+            args.addAll('--out', nodeFile(outFile))
+            args.addAll("--start", nodeFile(workDir))
             return exec()
         }
     }

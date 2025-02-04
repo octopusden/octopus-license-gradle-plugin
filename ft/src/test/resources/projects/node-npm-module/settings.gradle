@@ -4,4 +4,4 @@ pluginManagement {
         id 'org.octopusden.octopus.license-management' version settings['octopus-license-management-gradle-plugin.version']
     }
 }
-rootProject.name='node-single-module'
+rootProject.name='node-npm-module'

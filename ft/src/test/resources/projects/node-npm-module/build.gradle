@@ -9,7 +9,7 @@ processNpmLicenses {
 }
 
 task zipDistributive(type: Zip) {
-    archiveName "node-single-module.zip"
+    archiveName "node-npm-module.zip"
     destinationDir file('build/distr')
     from(processNpmLicenses) {
         into 'licenses'

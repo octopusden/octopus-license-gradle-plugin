@@ -2,16 +2,16 @@ plugins {
     id 'org.octopusden.octopus.license-management'
 }
 
-project.group = 'org.octopusden.octopus.npmtest'
+project.group = 'org.octopusden.octopus.nodetest'
 
-processNpmLicenses {
+processNodeLicenses {
     start = file("$projectDir/node-app")
 }
 
 task zipDistributive(type: Zip) {
     archiveName "node-yarn-module.zip"
     destinationDir file('build/distr')
-    from(processNpmLicenses) {
+    from(processNodeLicenses) {
         into 'licenses'
     }
 }

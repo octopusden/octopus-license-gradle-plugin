@@ -3,18 +3,18 @@ plugins {
     id 'java'
 }
 
-project.group = 'org.octopusden.octopus.npmtest'
+project.group = 'org.octopusden.octopus.nodetest'
 
 dependencies {
     implementation 'com.google.code.gson:gson:2.10.1'
 }
 
-processNpmLicenses {
+processNodeLicenses {
     start = file("$projectDir/node-app")
 }
 
 processResources {
-    dependsOn('processLicenses', 'processNpmLicenses')
+    dependsOn('processLicenses', 'processNodeLicenses')
     from(layout.buildDirectory.dir('licenses')) {
         into 'licenses'
     }

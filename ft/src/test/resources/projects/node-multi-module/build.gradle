@@ -2,4 +2,4 @@ plugins {
     id 'org.octopusden.octopus.license-management' apply false
 }
 
-project.group = 'org.octopusden.octopus.npmtest'
+project.group = 'org.octopusden.octopus.nodetest'
