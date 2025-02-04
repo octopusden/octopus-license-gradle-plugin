@@ -1,6 +1,5 @@
 package org.octopusden.octopus.license.management.plugins.gradle
 
-import com.github.gradle.node.npm.task.NpmTask
 import com.github.gradle.node.yarn.task.YarnTask
 import com.github.gradle.node.npm.task.NpxTask
 import org.octopusden.octopus.license.management.plugins.gradle.tasks.LicenseManagementExtension
@@ -67,9 +66,9 @@ class LicenseGradlePlugin implements Plugin<Project> {
                     assert new File(getNodeLicenseWorkDir(project), PACKAGE_JSON).exists()
                 }
             }
-            project.tasks.register("nodeLicenseCheckerInstall", NpmTask) {
-                dependsOn("npmSetup")
-                args = ['install', '-g', 'license-checker']
+            project.tasks.register("nodeLicenseCheckerInstall", YarnTask) {
+                dependsOn("yarnSetup")
+                args = ['global', 'add', 'license-checker']
                 environment['PATH'] = getEnvPath(project)
                 group = null
             }
@@ -97,7 +96,6 @@ class LicenseGradlePlugin implements Plugin<Project> {
                 if (processNodeLicensesTask.licenseRegistry == null) {
                     throw new IllegalArgumentException("Property 'license-registry.git-repository' must be specified")
                 }
-                project.tasks.findByName('yarnSetup')?.mustRunAfter('nodeLicenseCheckerInstall')
                 if (processNodeLicensesTask.production) {
                     (project.tasks.findByName('yarnModulesInstall') as YarnTask)?.args.with {
                         addAll('--omit=dev')
