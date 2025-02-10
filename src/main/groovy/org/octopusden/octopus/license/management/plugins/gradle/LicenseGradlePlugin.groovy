@@ -76,7 +76,7 @@ class LicenseGradlePlugin implements Plugin<Project> {
                 dependsOn('nodeLicenseCheckerInstall')
                 group = null
                 command = 'license-checker'
-                description 'Run npm license-checker. Required:-Plicense.skip=false -Pnode.skip=false'
+                description 'Run license-checker. Required:-Plicense.skip=false -Pnode.skip=false'
                 environment['PATH'] = getEnvPath(project)
             }
 
@@ -87,12 +87,11 @@ class LicenseGradlePlugin implements Plugin<Project> {
                 dependsOn(['nodeLicenseCheckerInstall', 'yarnModulesInstall'])
             }
 
-            project.tasks.create(ProcessNodeLicensesTask.NAME, ProcessNodeLicensesTask) {
+            def processNodeLicensesTask = project.tasks.create(ProcessNodeLicensesTask.NAME, ProcessNodeLicensesTask) {
                 group = NODE_LICENSE_GROUP
                 dependsOn(['nodeLicenseCheckerInstall', 'yarnModulesInstall'])
             }
             project.afterEvaluate {
-                ProcessNodeLicensesTask processNodeLicensesTask = getProcessNodeLicensesTask(project)
                 if (processNodeLicensesTask.licenseRegistry == null) {
                     throw new IllegalArgumentException("Property 'license-registry.git-repository' must be specified")
                 }
