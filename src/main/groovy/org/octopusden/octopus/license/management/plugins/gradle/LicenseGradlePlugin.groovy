@@ -1,9 +1,9 @@
 package org.octopusden.octopus.license.management.plugins.gradle
 
-import com.github.gradle.node.npm.task.NpmTask
+import com.github.gradle.node.yarn.task.YarnTask
 import com.github.gradle.node.npm.task.NpxTask
 import org.octopusden.octopus.license.management.plugins.gradle.tasks.LicenseManagementExtension
-import org.octopusden.octopus.license.management.plugins.gradle.tasks.ProcessNpmLicensesTask
+import org.octopusden.octopus.license.management.plugins.gradle.tasks.ProcessNodeLicensesTask
 import org.octopusden.octopus.license.management.plugins.gradle.tasks.LicenseTask
 import org.octopusden.octopus.license.management.plugins.gradle.tasks.LicensedDependenciesAnalyzingTask
 import org.gradle.api.DefaultTask
@@ -16,9 +16,10 @@ import static org.octopusden.octopus.license.management.plugins.gradle.utils.Mav
 
 class LicenseGradlePlugin implements Plugin<Project> {
 
+    public static final String PACKAGE_JSON = 'package.json'
     public static final String LICENSE_SKIP_PROPERTY = "license.skip"
     public static final String NODE_SKIP_PROPERTY = "node.skip"
-    private final static String NPM_LICENSE_GROUP = 'NpmLicense'
+    private final static String NODE_LICENSE_GROUP = 'NodeLicense'
     private final static String DEFAULT_NODE_VERSION = '18.12.1'
     private final static String DEFAULT_NPM_VERSION = '8.19.2'
     private final static String DEFAULT_YARN_VERSION = '1.22.19'
@@ -41,30 +42,33 @@ class LicenseGradlePlugin implements Plugin<Project> {
         }
     }
 
-    private boolean nodeOnlyIf(Project project) {
-        return propertyIsFalse(project, LICENSE_SKIP_PROPERTY) && propertyIsFalse(project, NODE_SKIP_PROPERTY) && !project.gradle.startParameter.offline
+    private static String getEnvPath(Project project) {
+        return ProcessNodeLicensesTask.getEnvPath(project)
     }
 
-    private String getEnvPath(Project project) {
-        return ProcessNpmLicensesTask.getEnvPath(project)
+    private static ProcessNodeLicensesTask getProcessNodeLicensesTask(Project project) {
+        project.tasks.findByName(ProcessNodeLicensesTask.NAME) as ProcessNodeLicensesTask
+    }
+
+    private static File getNodeLicenseWorkDir(Project project) {
+        return getProcessNodeLicensesTask(project).getWorkingDir(project)
     }
 
     private void addNodeTasks(Project project) {
-        boolean useNode = nodeOnlyIf(project)
-        if (useNode) {
-            def path = getEnvPath(project)
-            project.tasks.register("nodeModulesInstall", NpmTask) {
+        if (propertyIsFalse(project, LICENSE_SKIP_PROPERTY)
+                && propertyIsFalse(project, NODE_SKIP_PROPERTY)
+                && !project.gradle.startParameter.offline) {
+            project.tasks.register("yarnModulesInstall", YarnTask) {
                 group = null
                 args = ['install']
                 environment['PATH'] = getEnvPath(project)
                 doFirst {
-                    ProcessNpmLicensesTask processNpmLicensesTask = project.tasks.findByName(ProcessNpmLicensesTask.NAME)
-                    def nodeLicenseWorkDir = ProcessNpmLicensesTask.getWorkingDir(project)
-                    assert new File(nodeLicenseWorkDir, 'package.json').exists()
+                    assert new File(getNodeLicenseWorkDir(project), PACKAGE_JSON).exists()
                 }
             }
-            project.tasks.register("nodeLicenseCheckerInstall", NpmTask) {
-                args = ['install', '-g', 'license-checker']
+            project.tasks.register("nodeLicenseCheckerInstall", YarnTask) {
+                dependsOn("yarnSetup")
+                args = ['global', 'add', 'license-checker']
                 environment['PATH'] = getEnvPath(project)
                 group = null
             }
@@ -72,28 +76,41 @@ class LicenseGradlePlugin implements Plugin<Project> {
                 dependsOn('nodeLicenseCheckerInstall')
                 group = null
                 command = 'license-checker'
-                description 'Run npm license-checker. Required:-Plicense.skip=false -Pnode.skip=false'
+                description 'Run license-checker. Required:-Plicense.skip=false -Pnode.skip=false'
                 environment['PATH'] = getEnvPath(project)
             }
-            project.tasks.create(ProcessNpmLicensesTask.NAME, ProcessNpmLicensesTask) {
-                group = NPM_LICENSE_GROUP
-                dependsOn(['nodeLicenseCheckerInstall', 'nodeModulesInstall'])
+
+            @Deprecated
+            def processNpmLicenses = project.tasks.create('processNpmLicenses', ProcessNodeLicensesTask) {
+                group = null
+                description = "Deprecated task. Use ${ProcessNodeLicensesTask.NAME}"
+                dependsOn(['nodeLicenseCheckerInstall', 'yarnModulesInstall'])
+            }
+
+            def processNodeLicensesTask = project.tasks.create(ProcessNodeLicensesTask.NAME, ProcessNodeLicensesTask) {
+                group = NODE_LICENSE_GROUP
+                dependsOn(['nodeLicenseCheckerInstall', 'yarnModulesInstall'])
             }
             project.afterEvaluate {
-                ProcessNpmLicensesTask processNpmLicensesTask = project.tasks.findByName(ProcessNpmLicensesTask.NAME)
-                if (processNpmLicensesTask.licenseRegistry == null) {
+                if (processNodeLicensesTask.licenseRegistry == null) {
                     throw new IllegalArgumentException("Property 'license-registry.git-repository' must be specified")
                 }
-                if (processNpmLicensesTask.production) {
-                    (project.tasks.findByName('nodeModulesInstall') as NpmTask)?.args.with {
+                if (processNodeLicensesTask.production) {
+                    (project.tasks.findByName('yarnModulesInstall') as YarnTask)?.args.with {
                         addAll('--omit=dev')
                     }
                 }
-                project.node.nodeProjectDir = processNpmLicensesTask.start
+
+                if(!new File(processNodeLicensesTask.start, PACKAGE_JSON).exists() &&
+                new File(processNpmLicenses.start, PACKAGE_JSON).exists()){
+                    processNodeLicensesTask.start = processNpmLicenses.start
+                }
+
+                project.node.nodeProjectDir = processNodeLicensesTask.start
             }
         } else {
-            project.tasks.create(ProcessNpmLicensesTask.NAME, DefaultTask) {
-                group = NPM_LICENSE_GROUP
+            project.tasks.create(ProcessNodeLicensesTask.NAME, DefaultTask) {
+                group = NODE_LICENSE_GROUP
             }
         }
     }

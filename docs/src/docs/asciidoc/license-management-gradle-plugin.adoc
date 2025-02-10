@@ -187,7 +187,8 @@ Required gradle version 7.5.1 or above
 
 ==== Include node packages licenses in distribution
 
-To include licenses in distribution an output of *processNpmLicenses* task should be used as source.
+To include licenses in distribution an output of *processNodeLicenses* task should be used as source.
+Task *processNpmLicenses* is deprecated, but still work for backward compatability.
 
 .build.gradle
 [source,groovy]
@@ -198,7 +199,7 @@ plugins {
 
 task componentDistribution(type: Zip) {
     ...
-    from (processNpmLicenses) {
+    from (processNodeLicenses) {
         into 'licenses'
     }
     ...
@@ -216,14 +217,14 @@ plugins {
 }
 
 processResources {
-    dependsOn('processLicenses', 'processNpmLicenses')
+    dependsOn('processLicenses', 'processNodeLicenses')
     from(layout.buildDirectory.dir('licenses')) {
         into 'licenses'
     }
 }
 ----
 
-==== Parameters of _processNpmLicenses_ task
+==== Parameters of _processNodeLicenses_ task
 
 See https://www.npmjs.com/package/license-checker#options. Example
 
@@ -234,7 +235,7 @@ plugins {
     id 'org.octopusden.octopus.license-management'
 }
 
-processNpmLicenses {
+processNodeLicenses {
     start = file("$projectDir/node-app")
 }
 ----
@@ -244,5 +245,5 @@ processNpmLicenses {
 To process licenses (verify or include in distribution) set project parameter *license.skip* and *node.skip* to false.
 
 ----
-gradle -Plicense.skip=false -Pnode.skip=false processNpmLicenses
+gradle -Plicense.skip=false -Pnode.skip=false processNodeLicenses
 ----

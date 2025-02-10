@@ -1,0 +1,25 @@
+plugins {
+    id 'org.octopusden.octopus.license-management'
+}
+
+project.group = 'org.octopusden.octopus.npmtest'
+
+processNpmLicenses {
+    start = file("$projectDir/node-app")
+}
+
+task zipDistributive(type: Zip) {
+    archiveName "node-npm-module.zip"
+    destinationDir file('build/distr')
+    from(processNpmLicenses) {
+        into 'licenses'
+    }
+}
+
+task assemble {
+    dependsOn zipDistributive
+}
+
+task build {
+    dependsOn assemble
+}

@@ -233,12 +233,12 @@ class LicensePluginTest {
     }
 
     @Test
-    fun testNodeSingleModule() {
+    fun testNodeNpmModule() {
         val projectPath = gradle {
-            testProjectName = "node-single-module"
+            testProjectName = "node-npm-module"
             additionalArguments = arrayOf("-Pnode.skip=false")
         }
-        assertThat(zipTreeEntries(projectPath.resolve("build/distr/node-single-module.zip")))
+        assertThat(zipTreeEntries(projectPath.resolve("build/distr/node-npm-module.zip")))
             .containsExactlyInAnyOrderElementsOf(
                 listOf(
                     ZipTreeEntry("licenses/0BSD.txt"),
@@ -246,7 +246,7 @@ class LicensePluginTest {
                     ZipTreeEntry("licenses/BSD-3-Clause.txt"),
                     ZipTreeEntry("licenses/ISC.txt"),
                     ZipTreeEntry("licenses/MIT.txt"),
-                    ZipTreeEntry("licenses/THIRD-PARTY-node-single-module.txt"),
+                    ZipTreeEntry("licenses/THIRD-PARTY-node-npm-module.txt"),
                 )
             )
     }
@@ -273,6 +273,28 @@ class LicensePluginTest {
                 listOf(
                     ZipTreeEntry("licenses/MIT.txt"),
                     ZipTreeEntry("licenses/THIRD-PARTY-module-2.txt"),
+                )
+            )
+    }
+
+    @Test
+    fun testNodeYarnModule() {
+        val projectPath = gradle {
+            testProjectName = "node-yarn-module"
+            additionalArguments = arrayOf("-Pnode.skip=false")
+        }
+        assertThat(zipTreeEntries(projectPath.resolve("build/distr/node-yarn-module.zip")))
+            .containsExactlyInAnyOrderElementsOf(
+                listOf(
+                    ZipTreeEntry("licenses/(BSD-3-Clause AND Apache-2.0).txt"),
+                    ZipTreeEntry("licenses/0BSD.txt"),
+                    ZipTreeEntry("licenses/Apache-2.0.txt"),
+                    ZipTreeEntry("licenses/BSD-2-Clause.txt"),
+                    ZipTreeEntry("licenses/BSD-3-Clause.txt"),
+                    ZipTreeEntry("licenses/ISC.txt"),
+                    ZipTreeEntry("licenses/MIT.txt"),
+                    ZipTreeEntry("licenses/UNLICENSED.txt"),
+                    ZipTreeEntry("licenses/THIRD-PARTY-node-yarn-module.txt"),
                 )
             )
     }

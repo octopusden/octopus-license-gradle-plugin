@@ -5,7 +5,7 @@ plugins {
 task zipDistributive(type: Zip) {
     archiveFileName = "node-module2.zip"
     destinationDirectory = file('build/distr')
-    from(processNpmLicenses) {
+    from(processNodeLicenses) {
         into 'licenses'
     }
 }
