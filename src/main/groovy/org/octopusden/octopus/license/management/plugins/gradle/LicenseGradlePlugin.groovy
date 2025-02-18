@@ -21,7 +21,6 @@ class LicenseGradlePlugin implements Plugin<Project> {
     public static final String NODE_SKIP_PROPERTY = "node.skip"
     private final static String NODE_LICENSE_GROUP = 'NodeLicense'
     private final static String DEFAULT_NODE_VERSION = '18.12.1'
-    private final static String DEFAULT_NPM_VERSION = '8.19.2'
     private final static String DEFAULT_YARN_VERSION = '1.22.19'
     private final static String MINIMAL_GRADLE_VERSION_NODE_PLUGIN = '7.5.1'
 
@@ -33,7 +32,6 @@ class LicenseGradlePlugin implements Plugin<Project> {
         project.node {
             download = true
             version = project.findProperty('node.version') ?: DEFAULT_NODE_VERSION
-            npmVersion = project.findProperty('npm.version') ?: DEFAULT_NPM_VERSION
             yarnVersion = project.findProperty('yarn.version') ?: DEFAULT_YARN_VERSION
             // workDir = project.file("${project.buildDir}/nodejs")
             // npmWorkDir = project.file("${project.buildDir}/npm")
@@ -42,16 +40,16 @@ class LicenseGradlePlugin implements Plugin<Project> {
         }
     }
 
+    static String getLicenseWhitelistParameter(Project project) {
+        return project.findProperty("license-file-whitelist") ?: "licenses-whitelist.txt"
+    }
+
+    static String getLicenseRegistryGitRepository(Project project) {
+        return project.findProperty("license-registry.git-repository")
+    }
+
     private static String getEnvPath(Project project) {
         return ProcessNodeLicensesTask.getEnvPath(project)
-    }
-
-    private static ProcessNodeLicensesTask getProcessNodeLicensesTask(Project project) {
-        project.tasks.findByName(ProcessNodeLicensesTask.NAME) as ProcessNodeLicensesTask
-    }
-
-    private static File getNodeLicenseWorkDir(Project project) {
-        return getProcessNodeLicensesTask(project).getWorkingDir(project)
     }
 
     private void addNodeTasks(Project project) {
@@ -63,7 +61,8 @@ class LicenseGradlePlugin implements Plugin<Project> {
                 args = ['install']
                 environment['PATH'] = getEnvPath(project)
                 doFirst {
-                    assert new File(getNodeLicenseWorkDir(project), PACKAGE_JSON).exists()
+                    def task = project.tasks.findByName(ProcessNodeLicensesTask.NAME) as ProcessNodeLicensesTask
+                    assert new File(task.getWorkingDir(project), PACKAGE_JSON).exists()
                 }
             }
             project.tasks.register("nodeLicenseCheckerInstall", YarnTask) {
@@ -101,8 +100,8 @@ class LicenseGradlePlugin implements Plugin<Project> {
                     }
                 }
 
-                if(!new File(processNodeLicensesTask.start, PACKAGE_JSON).exists() &&
-                new File(processNpmLicenses.start, PACKAGE_JSON).exists()){
+                if (!new File(processNodeLicensesTask.start, PACKAGE_JSON).exists() &&
+                        new File(processNpmLicenses.start, PACKAGE_JSON).exists()) {
                     processNodeLicensesTask.start = processNpmLicenses.start
                 }
 

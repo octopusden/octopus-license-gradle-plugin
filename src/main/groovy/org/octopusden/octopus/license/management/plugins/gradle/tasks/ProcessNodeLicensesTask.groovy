@@ -16,6 +16,7 @@ package org.octopusden.octopus.license.management.plugins.gradle.tasks
 
 import com.github.gradle.node.npm.task.NpxTask
 import groovy.ant.FileNameFinder
+import org.octopusden.octopus.license.management.plugins.gradle.LicenseGradlePlugin
 import org.octopusden.octopus.license.management.plugins.gradle.utils.LicenseRegistryClient
 import org.gradle.api.Project
 import org.gradle.api.tasks.Input
@@ -25,21 +26,15 @@ import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.DefaultTask
-import org.octopusden.octopus.license.management.plugins.gradle.utils.MavenParametersUtils
 
 class ProcessNodeLicensesTask extends DefaultTask {
 
     public final static String NAME = 'processNodeLicenses'
     public final static String DESCRIPTION = 'https://www.npmjs.com/package/license-checker#options Required:-Plicense.skip=false -Pnode.skip=false'
 
-    public final static String LICENSE_REGISTRY_GIT_REPOSITORY_PROPERTY_NAME = "license-registry.git-repository"
-    public final static String LICENSE_WHITELIST_PROPERTY_NAME = "license.fileWhitelist"
     public final static String LICENSE_REGISTRY_SEPARATOR = "|"
     public final static String NODE_LIST_SEPARATOR = ";"
     public final static String EOL = System.properties.'line.separator'
-
-    public final String licenseRegistryGitRepository = MavenParametersUtils.getLicenseParametersProperty(project, LICENSE_REGISTRY_GIT_REPOSITORY_PROPERTY_NAME)
-            ?: project.findProperty(LICENSE_REGISTRY_GIT_REPOSITORY_PROPERTY_NAME)
 
     static File getWorkingDir(Project project) { return project.node.nodeProjectDir.get().asFile }
 
@@ -127,14 +122,13 @@ class ProcessNodeLicensesTask extends DefaultTask {
 
     @Internal
     LicenseRegistryClient getLicenseRegistry() {
-        return licenseRegistryGitRepository ?
-                new LicenseRegistryClient(licenseRegistryGitRepository) : null
+        return new LicenseRegistryClient(LicenseGradlePlugin.getLicenseRegistryGitRepository(project))
     }
 
     @Internal
     ArrayList<String> getLicenseRegistryWhiteList() {
         return licenseRegistry?.getFileContent(
-                System.getProperty(LICENSE_WHITELIST_PROPERTY_NAME)
+                LicenseGradlePlugin.getLicenseWhitelistParameter(project)
         )?.split("[$LICENSE_REGISTRY_SEPARATOR]")
     }
 

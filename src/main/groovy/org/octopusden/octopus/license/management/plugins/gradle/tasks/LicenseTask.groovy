@@ -1,5 +1,6 @@
 package org.octopusden.octopus.license.management.plugins.gradle.tasks
 
+import org.octopusden.octopus.license.management.plugins.gradle.LicenseGradlePlugin
 import org.octopusden.octopus.license.management.plugins.gradle.dto.ArtifactGAV
 import org.octopusden.octopus.license.management.plugins.gradle.dto.MavenGAV
 import org.octopusden.octopus.license.management.plugins.gradle.utils.MavenParametersUtils
@@ -136,7 +137,7 @@ class LicenseTask extends DefaultTask {
                         .split(" ")
             } else {
                 LOGGER.warn(("You're using a legacy method for parameter configuration that could be deleted in future. Please wrap all of the parameters in the 'maven-license-parameters'"))
-                def licenseRegistryGitRepository = project.findProperty("license-registry.git-repository")
+                def licenseRegistryGitRepository = LicenseGradlePlugin.getLicenseRegistryGitRepository(project)
                 if (licenseRegistryGitRepository == null) {
                     throw new IllegalArgumentException("Property 'license-registry.git-repository' must be specified")
                 }
@@ -150,7 +151,7 @@ class LicenseTask extends DefaultTask {
                         "-Dlicense.output.directory=${licensesDirectory.toPath().toAbsolutePath().normalize()}",
                         "-Dlicense.includedDependenciesWhitelist=${(project.findProperty("license-deps-whitelist") ?: "")}",
                         "-Dlicense.failOnNotWhitelistedDependency=${(project.findProperty("license-fail-on-not-whitelisted-dep") ?: "false")}",
-                        "-Dlicense.fileWhitelist=${(project.findProperty("license-file-whitelist") ?: "licenses-whitelist.txt")}"
+                        "-Dlicense.fileWhitelist=${LicenseGradlePlugin.getLicenseWhitelistParameter(project)}"
                 ]
             }
             def processInstance = LocalProcessBuilderFactory.newLocalProcessBuilder()
