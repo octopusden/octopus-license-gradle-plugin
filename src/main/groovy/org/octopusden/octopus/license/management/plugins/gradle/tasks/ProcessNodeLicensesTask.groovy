@@ -36,6 +36,8 @@ class ProcessNodeLicensesTask extends DefaultTask {
     public final static String NODE_LIST_SEPARATOR = ";"
     public final static String EOL = System.properties.'line.separator'
 
+    public final String licenseRegistryGitRepository = LicenseGradlePlugin.getLicenseRegistryGitRepository(project)
+
     static File getWorkingDir(Project project) { return project.node.nodeProjectDir.get().asFile }
 
     @Input
@@ -122,7 +124,8 @@ class ProcessNodeLicensesTask extends DefaultTask {
 
     @Internal
     LicenseRegistryClient getLicenseRegistry() {
-        return new LicenseRegistryClient(LicenseGradlePlugin.getLicenseRegistryGitRepository(project))
+        return licenseRegistryGitRepository ?
+                new LicenseRegistryClient(licenseRegistryGitRepository) : null
     }
 
     @Internal
