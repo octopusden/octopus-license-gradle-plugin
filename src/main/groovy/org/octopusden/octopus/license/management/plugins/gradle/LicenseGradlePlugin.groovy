@@ -11,6 +11,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.util.GradleVersion
+import org.octopusden.octopus.license.management.plugins.gradle.utils.MavenParametersUtils
 
 import static org.octopusden.octopus.license.management.plugins.gradle.utils.MavenParametersUtils.propertyIsFalse
 
@@ -44,8 +45,11 @@ class LicenseGradlePlugin implements Plugin<Project> {
         return project.findProperty("license-file-whitelist") ?: "licenses-whitelist.txt"
     }
 
+    public final static String LICENSE_REGISTRY_GIT_REPOSITORY_PROPERTY_NAME = "license-registry.git-repository"
+
     static String getLicenseRegistryGitRepository(Project project) {
-        return project.findProperty("license-registry.git-repository")
+        return MavenParametersUtils.getLicenseParametersProperty(project, LICENSE_REGISTRY_GIT_REPOSITORY_PROPERTY_NAME)
+                ?:project.findProperty(LICENSE_REGISTRY_GIT_REPOSITORY_PROPERTY_NAME)
     }
 
     private static String getEnvPath(Project project) {
@@ -92,7 +96,7 @@ class LicenseGradlePlugin implements Plugin<Project> {
             }
             project.afterEvaluate {
                 if (processNodeLicensesTask.licenseRegistry == null) {
-                    throw new IllegalArgumentException("Property 'license-registry.git-repository' must be specified")
+                    throw new IllegalArgumentException("Property '$LICENSE_REGISTRY_GIT_REPOSITORY_PROPERTY_NAME' must be specified")
                 }
                 if (processNodeLicensesTask.production) {
                     (project.tasks.findByName('yarnModulesInstall') as YarnTask)?.args.with {

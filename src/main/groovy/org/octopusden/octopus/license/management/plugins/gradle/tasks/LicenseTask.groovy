@@ -139,7 +139,7 @@ class LicenseTask extends DefaultTask {
                 LOGGER.warn(("You're using a legacy method for parameter configuration that could be deleted in future. Please wrap all of the parameters in the 'maven-license-parameters'"))
                 def licenseRegistryGitRepository = LicenseGradlePlugin.getLicenseRegistryGitRepository(project)
                 if (licenseRegistryGitRepository == null) {
-                    throw new IllegalArgumentException("Property 'license-registry.git-repository' must be specified")
+                    throw new IllegalArgumentException("Property '${LicenseGradlePlugin.LICENSE_REGISTRY_GIT_REPOSITORY_PROPERTY_NAME}' must be specified")
                 }
                 licenseArgs = [
                         "-Doctopus-license-maven-plugin.version=${octopusLicenseMavenPluginVersion}",
