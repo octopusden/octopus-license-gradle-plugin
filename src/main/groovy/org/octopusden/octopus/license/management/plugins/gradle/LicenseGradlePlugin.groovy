@@ -49,7 +49,7 @@ class LicenseGradlePlugin implements Plugin<Project> {
 
     static String getLicenseRegistryGitRepository(Project project) {
         return MavenParametersUtils.getLicenseParametersProperty(project, LICENSE_REGISTRY_GIT_REPOSITORY_PROPERTY_NAME)
-                ?:project.findProperty(LICENSE_REGISTRY_GIT_REPOSITORY_PROPERTY_NAME)
+                ?: project.findProperty(LICENSE_REGISTRY_GIT_REPOSITORY_PROPERTY_NAME)
     }
 
     private static String getEnvPath(Project project) {

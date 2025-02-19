@@ -59,7 +59,7 @@ class LicenseTask extends DefaultTask {
             throw new IllegalArgumentException("Property 'octopus-license-maven-plugin.version' must be specified")
         }
 
-        licensesPom.withWriter {writer ->
+        licensesPom.withWriter { writer ->
             def markupBuilder = new MarkupBuilder(writer)
             markupBuilder.project {
                 modelVersion("4.0.0")
@@ -101,7 +101,7 @@ class LicenseTask extends DefaultTask {
                     }
                 }
                 markupBuilder.dependencies {
-                    resolvedArtifacts.forEach{artifactGAV ->
+                    resolvedArtifacts.forEach { artifactGAV ->
                         dependency {
                             groupId(artifactGAV.group)
                             artifactId(artifactGAV.artifact)
@@ -161,29 +161,29 @@ class LicenseTask extends DefaultTask {
                     .mapBashExtension()
                     .mapShExtension()
                     .envVariables(Collections.singletonMap("JAVA_HOME", System.getProperty("java.home")))
-                    .logger{it.logger(LOGGER) }
-                    .stdOutConsumer{out ->
+                    .logger { it.logger(LOGGER) }
+                    .stdOutConsumer { out ->
                         output.add(out)
-                    }.stdErrConsumer{ err ->
-                        output.add(err)
-                    }.processInstance {
-                        it.headLimit(5)
-                        it.tailLimit(20)
-                    }
+                    }.stdErrConsumer { err ->
+                output.add(err)
+            }.processInstance {
+                it.headLimit(5)
+                it.tailLimit(20)
+            }
                     .build()
                     .execute("-f",
-                        licensesPom.toPath().toAbsolutePath().normalize(),
-                        "-B",
-                        "-Pnexus-staging",
-                        *licenseArgs,
-                        "generate-resources").toCompletableFuture().get()
+                            licensesPom.toPath().toAbsolutePath().normalize(),
+                            "-B",
+                            "-Pnexus-staging",
+                            *licenseArgs,
+                            "generate-resources").toCompletableFuture().get()
             def retCode = processInstance.exitCode
             project.file("build/licenses-mvn.log").text = output.join('\n')
             if (retCode != 0) {
                 if (!LOGGER.isDebugEnabled()) {
                     LOGGER.error("License processing output is {}", output.join('\n'))
                 }
-                throw new GradleException("Fail to execute maven command $retCode:\n\t" + String.join( '\n\t', processInstance.stdErr))
+                throw new GradleException("Fail to execute maven command $retCode:\n\t" + String.join('\n\t', processInstance.stdErr))
             }
         }
     }
