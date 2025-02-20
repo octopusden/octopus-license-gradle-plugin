@@ -6,6 +6,7 @@ project.group = 'org.octopusden.octopus.npmtest'
 
 processNpmLicenses {
     start = file("$projectDir/node-app")
+    onlyAllow = onlyAllow+";ISC;"
 }
 
 task zipDistributive(type: Zip) {

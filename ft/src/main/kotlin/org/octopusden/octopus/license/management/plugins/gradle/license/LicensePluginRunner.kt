@@ -28,7 +28,8 @@ open class TestGradleDSL {
 data class ZipTreeEntry(val name: String)
 
 fun zipTreeEntries(zipPath: Path): Collection<ZipTreeEntry> {
-    return FileSystems.newFileSystem(zipPath, null).use { fileSystem ->
+    val classLoader: ClassLoader? = null
+    return FileSystems.newFileSystem(zipPath, classLoader).use { fileSystem ->
         Files.walk(fileSystem.getPath("/")).filter { !Files.isDirectory(it) }.map { ZipTreeEntry(it.toString().replaceFirst("/", "")) }.collect(Collectors.toList())
     }
 }
