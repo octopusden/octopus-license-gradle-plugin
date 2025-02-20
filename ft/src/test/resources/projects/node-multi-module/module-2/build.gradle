@@ -2,6 +2,10 @@ plugins {
     id 'org.octopusden.octopus.license-management'
 }
 
+processNodeLicenses {
+    onlyAllow = onlyAllow+";ISC;"
+}
+
 task zipDistributive(type: Zip) {
     archiveFileName = "node-module2.zip"
     destinationDirectory = file('build/distr')

@@ -11,6 +11,7 @@ dependencies {
 
 processNodeLicenses {
     start = file("$projectDir/node-app")
+    onlyAllow = onlyAllow+";ISC;"
 }
 
 processResources {
