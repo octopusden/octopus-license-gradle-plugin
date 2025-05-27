@@ -1,6 +1,7 @@
 allprojects {
     tasks.withType(Test).configureEach {
         filter {
+            // TODO: this is a workaround for unstable NodeJS-based tests
             excludeTestsMatching "org.octopusden.octopus.license.management.plugins.gradle.license.LicensePluginTest.testNode*"
         }
     }
