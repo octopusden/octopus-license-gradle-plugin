@@ -1,10 +1,7 @@
 allprojects {
     tasks.withType(Test).configureEach {
         filter {
-            excludeTestsMatching "org.octopusden.octopus.license.management.plugins.gradle.license.LicensePluginTest.testNodeJava"
-            excludeTestsMatching "org.octopusden.octopus.license.management.plugins.gradle.license.LicensePluginTest.testNodeMultiModule"
-            excludeTestsMatching "org.octopusden.octopus.license.management.plugins.gradle.license.LicensePluginTest.testNodeNpmModule"
-            excludeTestsMatching "org.octopusden.octopus.license.management.plugins.gradle.license.LicensePluginTest.testNodeYarnModule"
+            excludeTestsMatching "org.octopusden.octopus.license.management.plugins.gradle.license.LicensePluginTest.testNode*"
         }
     }
 }
