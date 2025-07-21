@@ -15,7 +15,11 @@ import java.nio.file.Paths
 import java.util.stream.Collectors
 
 val LOGGER = LoggerFactory.getLogger("org.octopusden.octopus.license.management.plugins.gradle.license")
-const val LICENSE_REGISTRY_GIT_REPOSITORY_PROPERTY = "license-registry.git-repository"
+val testLicenseRegistryGitRepository by lazy {
+    val resource = TestGradleDSL::class.java.getResource("/license-registry.git")
+        ?: throw IllegalArgumentException("License registry not found in resources")
+    Paths.get(resource.toURI())
+}
 
 open class TestGradleDSL {
     lateinit var testProjectName: String
@@ -54,14 +58,12 @@ fun gradleProcessInstance(init: TestGradleDSL.() -> Unit): Pair<ProcessInstance,
     val octopusLicenseManagementGradlePluginVersion = System.getenv().getOrDefault("OCTOPUS_LICENSE_GRADLE_PLUGIN_VERSION", "2.0-SNAPSHOT")
     val licenseMavenPluginVersion = System.getenv("OCTOPUS_LICENSE_MAVEN_PLUGIN_VERSION")
     val supportedGroups = System.getenv("SUPPORTED_GROUPS")
-    val licenseRegistryGitRepository = System.getenv("LICENSE_REGISTRY_GIT_REPOSITORY")
     val octopusReleaseManagementVersion = System.getenv().getOrDefault(
         "OCTOPUS_RELEASE_MANAGEMENT_PLUGIN_VERSION", System.getenv("OCTOPUS_RELEASE_MANAGEMENT_GRADLE_PLUGIN_VERSION")
     )
 
     val missingProperties = listOfNotNull(
         if (licenseMavenPluginVersion == null) "OCTOPUS_LICENSE_MAVEN_PLUGIN_VERSION" else null,
-        if (licenseRegistryGitRepository == null) "LICENSE_REGISTRY_GIT_REPOSITORY" else null,
         if (octopusReleaseManagementVersion == null) "OCTOPUS_RELEASE_MANAGEMENT_PLUGIN_VERSION or OCTOPUS_RELEASE_MANAGEMENT_GRADLE_PLUGIN_VERSION" else null
     )
 
@@ -72,7 +74,7 @@ fun gradleProcessInstance(init: TestGradleDSL.() -> Unit): Pair<ProcessInstance,
         )
     }
 
-    val mavenLicenseParameters = "-Dlicense-registry.git-repository=$licenseRegistryGitRepository " +
+    val mavenLicenseParameters = "-Dlicense-registry.git-repository=$testLicenseRegistryGitRepository " +
             "-Dlicense.skip=false " +
             "-Doctopus-license-maven-plugin.version=$licenseMavenPluginVersion " +
             "-Dlicense.includeTransitiveDependencies=false " +
