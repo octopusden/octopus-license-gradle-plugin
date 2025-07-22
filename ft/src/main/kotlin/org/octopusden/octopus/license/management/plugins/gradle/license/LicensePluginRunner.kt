@@ -13,12 +13,36 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.stream.Collectors
+import java.util.zip.ZipInputStream
 
 val LOGGER = LoggerFactory.getLogger("org.octopusden.octopus.license.management.plugins.gradle.license")
 val testLicenseRegistryGitRepository by lazy {
-    val resource = TestGradleDSL::class.java.getResource("/license-registry.git")
-        ?: throw IllegalArgumentException("License registry not found in resources")
-    Paths.get(resource.toURI())
+    val licenseRegistryFileName = "license-registry.git"
+    val zipStream = TestGradleDSL::class.java.classLoader.getResourceAsStream("$licenseRegistryFileName.zip")
+        ?: throw IllegalArgumentException("File '$licenseRegistryFileName.zip' not found in resources")
+
+    val tempDir = Files.createTempDirectory(licenseRegistryFileName).also {
+        it.toFile().deleteOnExit()
+    }
+
+    ZipInputStream(zipStream).use { zip ->
+        var entry = zip.nextEntry
+        while (entry != null) {
+            val entryPath = tempDir.resolve(entry.name)
+            if (entry.isDirectory) {
+                Files.createDirectories(entryPath)
+            } else {
+                Files.copy(zip, entryPath)
+            }
+            entry = zip.nextEntry
+        }
+    }
+
+    val licensesPath = tempDir.resolve(licenseRegistryFileName)
+    if (!Files.isDirectory(licensesPath)) {
+        throw IllegalArgumentException("License registry not found at '$licensesPath'")
+    }
+    licensesPath
 }
 
 open class TestGradleDSL {
