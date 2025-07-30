@@ -1,0 +1,52 @@
+{
+  "name": "logan",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "node scripts/build.js",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "eslint-fix": "eslint --ext .ts,.tsx --fix src/ ",
+    "ci:install": "yarn install",
+    "ci:build": "yarn build",
+    "ci:test": "CI=true yarn test --passWithNoTests"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "dependencies": {
+    "@elastic/datemath": "5.0.3",
+    "@elastic/eui": "78.0.0",
+    "@emotion/css": "11.10.5",
+    "@emotion/react": "11.7.1",
+    "@fontsource/jetbrains-mono": "4.5.0",
+    "@reduxjs/toolkit": "1.9.5",
+    "@types/lodash": "4.14.191",
+    "json5": "2.2.2",
+    "lodash": "4.17.21",
+    "moment": "2.29.4",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-is": "18.2.0",
+    "react-redux": "8.0.5",
+    "react-window": "1.8.6",
+    "web-vitals": "1.0.1"
+  },
+  "homepage": "."
+}
