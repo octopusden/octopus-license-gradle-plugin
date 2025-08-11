@@ -1,0 +1,31 @@
+plugins {
+    id 'org.octopusden.octopus.license-management'
+}
+
+project.group = 'org.octopusden.octopus.nodetest'
+
+processNodeLicenses {
+    start = file("$projectDir/node-app")
+    onlyAllow = onlyAllow+";UNLICENSED;ISC;"
+}
+
+tasks.yarn{ yarnCommand = ["ci:install"] }
+
+tasks.processNodeLicenses {dependsOn(tasks.yarn)}
+
+task zipDistributive(type: Zip) {
+    dependsOn(tasks.yarn)
+    archiveFileName = "node-gradle-implicit-dependencies.zip"
+    destinationDirectory = file('build/distr')
+    from(processNodeLicenses) {
+        into 'licenses'
+    }
+}
+
+task assemble {
+    dependsOn zipDistributive
+}
+
+task build {
+    dependsOn assemble
+}

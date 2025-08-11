@@ -61,6 +61,7 @@ class LicenseGradlePlugin implements Plugin<Project> {
                 && propertyIsFalse(project, NODE_SKIP_PROPERTY)
                 && !project.gradle.startParameter.offline) {
             project.tasks.register("yarnModulesInstall", YarnTask) {
+                dependsOn("yarn")
                 group = null
                 args = ['install']
                 environment['PATH'] = getEnvPath(project)
