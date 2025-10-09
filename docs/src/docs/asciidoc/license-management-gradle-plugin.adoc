@@ -26,7 +26,7 @@ plugins {
 ----
 pluginManagement {
     plugins {
-        id 'org.octopusden.octopus.license-management' version settings['octopus-license-gradle-plugin.version']
+        id 'org.octopusden.octopus.license-management' version settings['octopus-license-management.version']
     }
 }
 ----
@@ -34,7 +34,7 @@ pluginManagement {
 gradle.properties
 [subs="attributes"]
 ----
-octopus-license-gradle-plugin.version={version-label}
+octopus-license-management.version={version-label}
 ----
 
 ==== License legacy Plugin Application
@@ -46,7 +46,7 @@ Applying the _org.octopusden.octopus.license-management_ plugin with the buildsc
 ----
 buildscript {
     dependencies {
-        classpath "org.octopusden.octopus.license:org.octopusden.octopus.license-management:${project.findProperty('octopus-license-gradle-plugin.version') ?: '{version-label}'}"
+        classpath "org.octopusden.octopus.license:org.octopusden.octopus.license-management:${project.findProperty('octopus-license-management.version') ?: '{version-label}'}"
      }
 }
 

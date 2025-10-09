@@ -25,7 +25,7 @@ plugins {
 ```groovy
 pluginManagement {
     plugins {
-        id 'org.octopusden.octopus.license-management' version settings['octopus-license-gradle-plugin.version']
+        id 'org.octopusden.octopus.license-management' version settings['octopus-license-management.version']
     }
 }
 ```
@@ -38,7 +38,7 @@ Applying the *org.octopusden.octopus.license-management* plugin with the `builds
 ```groovy
 buildscript {
     dependencies {
-        classpath "org.octopusden.octopus.license-management:org.octopusden.octopus.license-management.gradle.plugin:${project.findProperty('octopus-license-gradle-plugin.version') ?: '{version-label}'}"
+        classpath "org.octopusden.octopus.license-management:org.octopusden.octopus.license-management.gradle.plugin:${project.findProperty('octopus-license-management.version') ?: '{version-label}'}"
     }
 }
 
