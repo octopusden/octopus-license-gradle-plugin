@@ -1,7 +1,7 @@
 //
 pluginManagement {
     plugins {
-        id 'org.octopusden.octopus.license-management' version settings['octopus-license-management-gradle-plugin.version']
+        id 'org.octopusden.octopus.license-management' version settings['octopus-license-management.version']
     }
 }
 rootProject.name='node-gradle-implicit-dependencies'

@@ -1,6 +1,6 @@
 pluginManagement {
     plugins {
-        id("org.octopusden.octopus.license-management") version (extra["octopus-license-management-gradle-plugin.version"] as String)
+        id("org.octopusden.octopus.license-management") version (extra["octopus-license-management.version"] as String)
     }
 }
 
