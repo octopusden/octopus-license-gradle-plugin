@@ -1,19 +1,18 @@
 package org.octopusden.octopus.license.management.plugins.gradle.tasks
 
 import groovy.json.JsonBuilder
+import org.gradle.api.artifacts.ModuleDependency
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ResolvedArtifact
 import org.gradle.api.artifacts.ResolvedDependency
 import org.gradle.api.artifacts.component.ProjectComponentIdentifier
-import org.gradle.api.internal.artifacts.dependencies.DefaultExternalModuleDependency
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.util.GradleVersion
-import org.octopusden.octopus.components.registry.client.impl.ClassicComponentsRegistryServiceClient
-import org.octopusden.octopus.components.registry.client.impl.ClassicComponentsRegistryServiceClientUrlProvider
+import org.octopusden.octopus.license.management.plugins.gradle.dto.MavenExcludeRule
 import org.octopusden.octopus.license.management.plugins.gradle.dto.MavenGAV
 
 /**
@@ -22,8 +21,6 @@ import org.octopusden.octopus.license.management.plugins.gradle.dto.MavenGAV
 class LicensedDependenciesAnalyzingTask extends DefaultTask {
 
     public static final String STRICT_RESOLVER = "strictDependencyResolution"
-    public static final String SUPPORTED_GROUPS = "supported-groups"
-    public static final String CRS_URL ="component-registry-service-url"
 
     private static final String DEFAULT_EXCLUDE_PATTERN = "test.*"
     private static final String DEFAULT_INCLUDE_PATTERN = ".*"
@@ -52,6 +49,7 @@ class LicensedDependenciesAnalyzingTask extends DefaultTask {
         outputs.file(dependenciesListFile)
     }
 
+    @SuppressWarnings('ConfigurationAvoidance')
     @TaskAction
     def processLicensedDependencies() {
         if (project.gradle.startParameter.offline) {
@@ -89,7 +87,9 @@ class LicensedDependenciesAnalyzingTask extends DefaultTask {
                 } else {
                     try {
                         if (legacyVersion) {
-                            configuration.resolvedConfiguration.resolvedArtifacts.forEach { artifact -> resolvedArtifacts.add(artifactToMavenGav(project$, configuration, artifact)) }
+                            configuration.resolvedConfiguration.resolvedArtifacts.forEach { artifact ->
+                                resolvedArtifacts.add(artifactToMavenGav(project$, configuration, artifact))
+                            }
                         } else {
                             def configurationName = "${configuration.name}_license_plugin"
                             Configuration toAnalyze = Optional.ofNullable(project$.getConfigurations().findByName(configurationName))
@@ -99,18 +99,11 @@ class LicensedDependenciesAnalyzingTask extends DefaultTask {
                                         created.canBeResolved = true
                                         created.canBeConsumed = true
                                         created.transitive = true
-                                        configuration.dependencies.each { dep ->
-                                            if (dep instanceof DefaultExternalModuleDependency && !dep.transitive) {
-                                                def copyDep = dep.copy()
-                                                copyDep.transitive = true
-                                                created.dependencies.add(copyDep)
-                                            }
-                                        }
                                         created
                                     }
-                            toAnalyze.resolvedConfiguration.lenientConfiguration.getAllModuleDependencies().forEach { artifact ->
-                                if (!isProjectArtifact(artifact)) {
-                                    resolvedArtifacts.addAll(dependencyToMavenGav(project$, configuration, artifact))
+                            toAnalyze.resolvedConfiguration.lenientConfiguration.getFirstLevelModuleDependencies().forEach { dependency ->
+                                if (!isProjectDependency(dependency)) {
+                                    resolvedArtifacts.addAll(dependencyToMavenGav(project$, configuration, dependency))
                                 }
                             }
                             toAnalyze.resolvedConfiguration.lenientConfiguration.getUnresolvedModuleDependencies().forEach { unresolvedDependency ->
@@ -127,7 +120,7 @@ class LicensedDependenciesAnalyzingTask extends DefaultTask {
                             innerEx = innerEx.cause
                         } while (innerEx)
 
-                        def strictDR = ! ( project.hasProperty(STRICT_RESOLVER) && project.property(STRICT_RESOLVER) == 'false' )
+                        def strictDR = !(project.hasProperty(STRICT_RESOLVER) && project.property(STRICT_RESOLVER) == 'false')
                         resProblemsMessages.append "\nThe '${STRICT_RESOLVER}' mode is set to ${strictDR}\n"
 
                         if (strictDR) {
@@ -135,7 +128,9 @@ class LicensedDependenciesAnalyzingTask extends DefaultTask {
                             throw exception
                         } else {
                             try {
-                                configuration.resolvedConfiguration.resolvedArtifacts.forEach { resolvedArtifacts.add(toMavenGav(project$, configuration, it)) }
+                                configuration.resolvedConfiguration.resolvedArtifacts.forEach {
+                                    resolvedArtifacts.add(artifactToMavenGav(project$, configuration, it))
+                                }
                             } catch (Exception exception2) {
                                 logger.error "Unable to resolve original configuration ${configuration.name}", exception2
                             }
@@ -144,52 +139,9 @@ class LicensedDependenciesAnalyzingTask extends DefaultTask {
                 }
             }
 
-            def supportedGroups = new HashSet<String>()
-            def hasSupportedGroups = project.hasProperty(SUPPORTED_GROUPS)
-            def hasCrsUrl = project.hasProperty(CRS_URL)
-
-            if (hasSupportedGroups && hasCrsUrl) {
-                throw new IllegalArgumentException("Can only 1 property exist: either $SUPPORTED_GROUPS or $CRS_URL, not both.")
-            }
-            if (!hasSupportedGroups && !hasCrsUrl) {
-                throw new IllegalArgumentException("At least one property must exist: $SUPPORTED_GROUPS or $CRS_URL.")
-            }
-
-            if (hasSupportedGroups) {
-                def supportedGroupsString = project.property(SUPPORTED_GROUPS) as String
-                logger.info("Supported groups from property: ${supportedGroupsString}")
-                supportedGroups.addAll(supportedGroupsString.split(",").collect { it.trim() })
-            }
-
-            if (hasCrsUrl) {
-                def componentsRegistryApiUrl = project.findProperty(CRS_URL).toString()
-                def componentsRegistryServiceClient = new ClassicComponentsRegistryServiceClient(
-                    new ClassicComponentsRegistryServiceClientUrlProvider() {
-                        @Override
-                        String getApiUrl() {
-                            return componentsRegistryApiUrl
-                        }
-                    }
-                )
-                try {
-                    def supportedGroupIds = componentsRegistryServiceClient.supportedGroupIds
-                    logger.info("Supported groups from Components Registry: ${supportedGroupIds.join(",")}")
-                    supportedGroups.addAll(supportedGroupIds)
-                } catch (Exception e) {
-                    throw new IllegalStateException("Failed to get a successful response for supported groups from $componentsRegistryApiUrl!", e)
-                }
-            }
-
-            if (supportedGroups.isEmpty()) {
-                throw new IllegalArgumentException("Can't found any supported groups, please check your $SUPPORTED_GROUPS or $CRS_URL values!")
-            }
-
-            def externalDependencies = resolvedArtifacts.findAll { artifact ->
-                supportedGroups.findAll { group -> artifact.getGroup().startsWith(group.toString()) }.size() == 0
-            }.collect { it }
-            logger.info("External dependencies:\n${externalDependencies.collect { a -> a.logString() }.join(",\n")}")
+            logger.info("Resolved dependencies:\n${resolvedArtifacts.collect { it.logString() }.join(",\n")}")
             def builder = new JsonBuilder()
-            builder(externalDependencies)
+            builder(resolvedArtifacts.toList())
             dependenciesListFile.write(builder.toPrettyString())
         }
         printFoundProblems(resProblemsMessages)
@@ -206,28 +158,44 @@ class LicensedDependenciesAnalyzingTask extends DefaultTask {
         }
     }
 
-    Boolean isProjectArtifact(ResolvedDependency artifact) {
-        return artifact.moduleArtifacts.size() == 1
-                && artifact.moduleArtifacts.first().id.componentIdentifier instanceof ProjectComponentIdentifier
+    static Boolean isProjectDependency(ResolvedDependency dependency) {
+        return dependency.moduleArtifacts.size() == 1
+                && dependency.moduleArtifacts.first().id.componentIdentifier instanceof ProjectComponentIdentifier
     }
 
-    MavenGAV artifactToMavenGav(Project project, Configuration configuration, ResolvedArtifact resolvedArtifact) {
+    static MavenGAV artifactToMavenGav(Project project, Configuration configuration, ResolvedArtifact resolvedArtifact) {
         return new MavenGAV(project: project.name,
                 configuration: configuration.name,
                 group: resolvedArtifact.moduleVersion.id.group,
                 artifact: resolvedArtifact.moduleVersion.id.name,
                 version: resolvedArtifact.moduleVersion.id.version,
                 classifier: resolvedArtifact.classifier,
-                extension: resolvedArtifact.extension)
+                extension: resolvedArtifact.extension,
+                excludeRules: getExcludedRules(configuration, resolvedArtifact)
+        )
     }
 
-    Collection<MavenGAV> dependencyToMavenGav(Project project, Configuration configuration, ResolvedDependency resolvedDependency) {
+    static Collection<MavenGAV> dependencyToMavenGav(Project project, Configuration configuration, ResolvedDependency resolvedDependency) {
         return resolvedDependency.moduleArtifacts.collect {
             artifactToMavenGav(project, configuration, it)
         }
     }
 
-    def addChoosingVariantsInstruction(StringBuilder sb) {
+    static List<MavenExcludeRule> getExcludedRules(Configuration configuration, ResolvedArtifact artifact) {
+        if (!configuration.transitive) {
+            return [new MavenExcludeRule(group: "*", artifact: "*")]
+        }
+        def dep = configuration.allDependencies.withType(ModuleDependency).find {
+            it.group == artifact.moduleVersion.id.group && it.name == artifact.moduleVersion.id.name
+        }
+        if (dep == null) return null
+        return !dep.transitive ? [new MavenExcludeRule(group: "*", artifact: "*")] :
+                dep.excludeRules?.collect { rule ->
+                    new MavenExcludeRule(group: rule.group ?: "*", artifact: rule.module ?: "*")
+                }?.toList()
+    }
+
+    static def addChoosingVariantsInstruction(StringBuilder sb) {
         if (sb.contains("Cannot choose between the following variants")) {
             def varInstr = """
 

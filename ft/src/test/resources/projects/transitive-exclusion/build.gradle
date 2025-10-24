@@ -1,0 +1,46 @@
+plugins {
+    id 'org.octopusden.octopus.license-management'
+}
+
+project.group = 'org.octopusden.octopus.zenit'
+
+configurations {
+    deps
+}
+
+
+dependencies {
+    deps "io.micrometer:micrometer-registry-prometheus:1.13.6"
+    /*
+     *  <dependency>
+     *      <groupId>io.prometheus</groupId>
+     *      <artifactId>prometheus-metrics-core</artifactId>
+     *      <version>1.2.1</version>
+     *      <scope>compile</scope>
+     *      <exclusions>
+     *          <exclusion>
+     *              <groupId>io.prometheus</groupId>
+     *              <artifactId>prometheus-metrics-tracer-initializer</artifactId>
+     *           </exclusion>
+     *      </exclusions>
+     *  </dependency>
+     */
+}
+
+task zipDistributive(type:Zip) {
+    archiveFileName = "single-module.zip"
+    destinationDirectory = file('build/distr')
+    from configurations.deps
+    from (processLicenses) {
+        into 'licenses'
+    }
+}
+
+task assemble {
+    dependsOn zipDistributive
+}
+
+task build {
+    dependsOn assemble
+}
+

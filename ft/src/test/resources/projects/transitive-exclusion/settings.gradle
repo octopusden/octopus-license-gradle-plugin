@@ -1,0 +1,6 @@
+pluginManagement {
+    plugins {
+        id 'org.octopusden.octopus.license-management' version settings['octopus-license-management.version']
+    }
+}
+rootProject.name='license-test-transitive-exclusion'

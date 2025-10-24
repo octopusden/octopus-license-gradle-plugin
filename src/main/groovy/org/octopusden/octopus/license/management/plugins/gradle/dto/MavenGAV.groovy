@@ -11,8 +11,14 @@ class MavenGAV {
     String version
     String classifier
     String extension
+    List<MavenExcludeRule> excludeRules
 
     def logString() {
-        "$group:$artifact:$version${classifier != null ? ":$classifier" : ""}"
+        "$group:$artifact" + (version ? ":$version" : "") +
+                (classifier ? ":$classifier" : "") +
+                (extension ? "@$extension" : "") +
+                (excludeRules ? "{\n" +
+                        excludeRules.each { "exclude(group = ${it.group}, mpdule = ${it.artifact}\n" } +
+                        "}" : "")
     }
 }

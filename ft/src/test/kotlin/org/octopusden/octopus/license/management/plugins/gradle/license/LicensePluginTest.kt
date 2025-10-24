@@ -33,22 +33,37 @@ class LicensePluginTest {
         }
         val jsonDependenciesPath = projectPath.resolve("build/dependencies.json")
         assertThat(jsonDependenciesPath).exists()
+        assertThat(String(Files.readAllBytes(jsonDependenciesPath))).contains("\"group\": \"*\"")
         assertThat(zipTreeEntries(projectPath.resolve("build/distr/single-module.zip")))
-            .contains(
-                ZipTreeEntry("licenses/apache-2.0 - apache-2.0.txt"),
+            .containsOnly(
+                ZipTreeEntry("license-test-zip-with-dependencies-1.1.zip"),
                 ZipTreeEntry("licenses/THIRD-PARTY.txt")
             )
+    }
+
+    @Test
+    fun testTransitiveExclusion() {
+        val projectPath = gradle {
+            testProjectName = "transitive-exclusion"
+            mavenTransitive = true
+        }
+        val licensesFilePath = projectPath.resolve("build/licenses/THIRD-PARTY.txt")
+        assertThat(licensesFilePath).exists()
+        assertThat(String(Files.readAllBytes(licensesFilePath))).doesNotContain("prometheus-metrics-tracer-initializer")
     }
 
     @Test
     fun testSupportedGroups() {
         val projectPath = gradle {
             testProjectName = "supported-groups"
-            additionalArguments = arrayOf("-PexcludeIbmGroups", "-Psupported-groups=org.octopusden.octopus.releng,org.octopusden.octopus.jira")
+            additionalArguments = arrayOf(
+                "-PexcludeIbmGroups",
+                "-Psupported-groups=org.octopusden.octopus.releng,org.octopusden.octopus.jira"
+            )
         }
-        val jsonDependenciesPath = projectPath.resolve("build/dependencies.json")
-        assertThat(jsonDependenciesPath).exists()
-        assertThat(String(Files.readAllBytes(jsonDependenciesPath))).doesNotContain("org.octopusden.octopus")
+        val licensesFilePath = projectPath.resolve("build/licenses/THIRD-PARTY.txt")
+        assertThat(licensesFilePath).exists()
+        assertThat(String(Files.readAllBytes(licensesFilePath))).doesNotContain("org.octopusden.octopus")
     }
 
     @Test
@@ -88,6 +103,7 @@ class LicensePluginTest {
         val projectPath = gradle {
             testProjectName = "ibm-libraries"
             additionalArguments = arrayOf("-PexcludeIbmGroups")
+            mavenTransitive = true
         }
         assertThat(zipTreeEntries(projectPath.resolve("build/distr/ibm-module.zip")))
             .contains(
@@ -159,6 +175,7 @@ class LicensePluginTest {
     fun testLCTRL122() {
         val projectPath = gradle {
             testProjectName = "LCTRL-122"
+            mavenTransitive = true
         }
         assertThat(zipTreeEntries(projectPath.resolve("module-1/build/distr/module1.zip")))
             .containsExactlyInAnyOrderElementsOf(
@@ -188,6 +205,7 @@ class LicensePluginTest {
     fun testLCTRL136() {
         val projectPath = gradle {
             testProjectName = "LCTRL-136"
+            mavenTransitive = true
         }
         assertThat(zipTreeEntries(projectPath.resolve("module-1/build/distr/module1.zip")))
             .containsExactlyInAnyOrderElementsOf(
@@ -334,6 +352,11 @@ class LicensePluginTest {
                     ZipTreeEntry("licenses/THIRD-PARTY.txt"),
                 )
             )
+        val licensesFilePath = projectPath.resolve("build/licenses-pom.xml")
+        assertThat(licensesFilePath).exists()
+        val licensesPomXml = String(Files.readAllBytes(licensesFilePath))
+        assertThat(licensesPomXml).doesNotContain("velocity-engine-core")
+        assertThat(licensesPomXml).doesNotContain("velocity-tools")
     }
 
     @Test

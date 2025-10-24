@@ -2,8 +2,11 @@ package org.octopusden.octopus.license.management.plugins.gradle.tasks
 
 import org.octopusden.octopus.license.management.plugins.gradle.LicenseGradlePlugin
 import org.octopusden.octopus.license.management.plugins.gradle.dto.ArtifactGAV
+import org.octopusden.octopus.license.management.plugins.gradle.dto.ExcludeRule
 import org.octopusden.octopus.license.management.plugins.gradle.dto.MavenGAV
 import org.octopusden.octopus.license.management.plugins.gradle.utils.MavenParametersUtils
+import org.octopusden.octopus.components.registry.client.impl.ClassicComponentsRegistryServiceClient
+import org.octopusden.octopus.components.registry.client.impl.ClassicComponentsRegistryServiceClientUrlProvider
 
 import com.platformlib.process.local.factory.LocalProcessBuilderFactory
 import groovy.json.JsonSlurper
@@ -21,6 +24,9 @@ import java.util.concurrent.CopyOnWriteArrayList
 class LicenseTask extends DefaultTask {
     private static final Logger LOGGER = LoggerFactory.getLogger(LicenseTask.class)
 
+    public static final String SUPPORTED_GROUPS = "supported-groups"
+    public static final String CRS_URL = "component-registry-service-url"
+
     @Input
     String sourceDependencies = "build/dependencies.json"
 
@@ -33,11 +39,57 @@ class LicenseTask extends DefaultTask {
         outputs.dir(licensesDirectory)
     }
 
+    private final String getSupportedGroups(project) {
+        def supportedGroups = ""
+        def hasSupportedGroups = project.hasProperty(SUPPORTED_GROUPS)
+        def hasCrsUrl = project.hasProperty(CRS_URL)
+
+        if (hasSupportedGroups && hasCrsUrl) {
+            throw new IllegalArgumentException("Can only 1 property exist: either $SUPPORTED_GROUPS or $CRS_URL, not both.")
+        }
+        if (!hasSupportedGroups && !hasCrsUrl) {
+            throw new IllegalArgumentException("At least one property must exist: $SUPPORTED_GROUPS or $CRS_URL.")
+        }
+
+        if (hasSupportedGroups) {
+            def supportedGroupsString = project.property(SUPPORTED_GROUPS) as String
+            LOGGER.info("Supported groups from property: ${supportedGroupsString}")
+            supportedGroups = supportedGroupsString.split(",").collect { it.trim() }.join('|')
+        }
+
+        if (hasCrsUrl) {
+            def componentsRegistryApiUrl = project.findProperty(CRS_URL).toString()
+            def componentsRegistryServiceClient = new ClassicComponentsRegistryServiceClient(
+                    new ClassicComponentsRegistryServiceClientUrlProvider() {
+                        @Override
+                        String getApiUrl() { return componentsRegistryApiUrl }
+                    }
+            )
+            try {
+                supportedGroups = componentsRegistryServiceClient.supportedGroupIds.join("|").tap {
+                    logger.info("Supported groups from Components Registry: ${it}")
+                }
+            } catch (Exception e) {
+                throw new IllegalStateException("Failed to get a successful response for supported groups from $componentsRegistryApiUrl!", e)
+            }
+        }
+
+        if (supportedGroups.isEmpty()) {
+            throw new IllegalArgumentException("Can't found any supported groups, please check your $SUPPORTED_GROUPS or $CRS_URL values!")
+        }
+        return supportedGroups
+    }
+
     @TaskAction
     void processLicenses() {
         if (project.gradle.startParameter.offline) {
             LOGGER.info("Skip generating licenses because of offline mode")
             return
+        }
+
+        def mavenExcludedGroups = getSupportedGroups(project)
+        if (project.rootProject.hasProperty("excludeIbmGroups")) {
+            mavenExcludedGroups += (mavenExcludedGroups ? '|' : '') + 'com.ibm.mq|com.ibm'
         }
 
         def licensesPom = project.file("build/licenses-pom.xml")
@@ -48,7 +100,8 @@ class LicenseTask extends DefaultTask {
                     it.artifact,
                     it.version,
                     it.classifier,
-                    it.extension
+                    it.extension,
+                    it.excludeRules?.collect { new ExcludeRule(it.group, it.artifact) }
             )
         }.toSet()
 
@@ -78,9 +131,7 @@ class LicenseTask extends DefaultTask {
                                 failIfWarning("false")
                                 failOnMissing("\${license.failOnMissing}")
                                 failOnBlacklist("\${license.failOnBlacklist}")
-                                if (project.rootProject.hasProperty("excludeIbmGroups")) {
-                                    excludedGroups('com.ibm.mq|com.ibm')
-                                }
+                                excludedGroups(mavenExcludedGroups)
                                 useMissingFile("false")
                                 useRepositoryMissingFiles("false")
                                 licensesOutputDirectory("\${license.output.directory}")
@@ -111,6 +162,16 @@ class LicenseTask extends DefaultTask {
                             }
                             if (artifactGAV.extension != null) {
                                 type(artifactGAV.extension)
+                            }
+                            if (artifactGAV.excludeRules) {
+                                exclusions {
+                                    artifactGAV.excludeRules.each { rule ->
+                                        exclusion {
+                                            groupId(rule.group)
+                                            artifactId(rule.artifact)
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
