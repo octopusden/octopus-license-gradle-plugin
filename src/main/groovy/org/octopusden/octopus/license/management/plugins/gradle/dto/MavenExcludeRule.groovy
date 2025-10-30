@@ -1,8 +1,8 @@
 package org.octopusden.octopus.license.management.plugins.gradle.dto
 
-import groovy.transform.EqualsAndHashCode
+import groovy.transform.Canonical
 
-@EqualsAndHashCode
+@Canonical
 class MavenExcludeRule {
     String group
     String artifact
