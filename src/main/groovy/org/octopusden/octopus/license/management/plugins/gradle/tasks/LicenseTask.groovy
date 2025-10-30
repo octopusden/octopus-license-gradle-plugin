@@ -2,7 +2,7 @@ package org.octopusden.octopus.license.management.plugins.gradle.tasks
 
 import org.octopusden.octopus.license.management.plugins.gradle.LicenseGradlePlugin
 import org.octopusden.octopus.license.management.plugins.gradle.dto.ArtifactGAV
-import org.octopusden.octopus.license.management.plugins.gradle.dto.ExcludeRule
+import org.octopusden.octopus.license.management.plugins.gradle.dto.MavenExcludeRule
 import org.octopusden.octopus.license.management.plugins.gradle.dto.MavenGAV
 import org.octopusden.octopus.license.management.plugins.gradle.utils.MavenParametersUtils
 import org.octopusden.octopus.components.registry.client.impl.ClassicComponentsRegistryServiceClient
@@ -101,7 +101,7 @@ class LicenseTask extends DefaultTask {
                     it.version,
                     it.classifier,
                     it.extension,
-                    it.excludeRules?.collect { new ExcludeRule(it.group, it.artifact) }
+                    it.excludeRules?.collect { new MavenExcludeRule(it.group, it.artifact) }
             )
         }.toSet()
 
