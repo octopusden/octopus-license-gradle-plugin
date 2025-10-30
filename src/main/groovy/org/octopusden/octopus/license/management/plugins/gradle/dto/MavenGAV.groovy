@@ -18,7 +18,7 @@ class MavenGAV {
                 (classifier ? ":$classifier" : "") +
                 (extension ? "@$extension" : "") +
                 (excludeRules ? "{\n" +
-                        excludeRules.collect { "exclude(group = ${it.group}, module = ${it.artifact})\n" } +
-                        "}" : "")
+                        excludeRules.collect { "exclude(group = ${it.group}, module = ${it.artifact})" }.join("\n") +
+                        "\n}" : "")
     }
 }
