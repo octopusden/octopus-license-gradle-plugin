@@ -51,6 +51,7 @@ open class TestGradleDSL {
     var additionalEnvVariables: Map<String, String> = mapOf()
     var tasks: Array<String> = arrayOf()
     var clean = false
+    var mavenTransitive = false
 }
 
 data class ZipTreeEntry(val name: String)
@@ -101,7 +102,7 @@ fun gradleProcessInstance(init: TestGradleDSL.() -> Unit): Pair<ProcessInstance,
     val mavenLicenseParameters = "-Dlicense-registry.git-repository=$testLicenseRegistryGitRepository " +
             "-Dlicense.skip=false " +
             "-Doctopus-license-maven-plugin.version=$licenseMavenPluginVersion " +
-            "-Dlicense.includeTransitiveDependencies=false " +
+            "-Dlicense.includeTransitiveDependencies=${testGradleDSL.mavenTransitive} " +
             "-Dlicense.failOnMissing=true " +
             "-Dlicense.failOnBlacklist=true"
 
