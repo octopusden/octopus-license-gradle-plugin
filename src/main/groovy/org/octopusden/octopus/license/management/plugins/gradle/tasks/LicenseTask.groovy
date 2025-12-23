@@ -1,6 +1,5 @@
 package org.octopusden.octopus.license.management.plugins.gradle.tasks
 
-import org.octopusden.octopus.license.management.plugins.gradle.LicenseGradlePlugin
 import org.octopusden.octopus.license.management.plugins.gradle.dto.ArtifactGAV
 import org.octopusden.octopus.license.management.plugins.gradle.dto.MavenExcludeRule
 import org.octopusden.octopus.license.management.plugins.gradle.dto.MavenGAV
@@ -189,32 +188,15 @@ class LicenseTask extends DefaultTask {
 
             def licenseArgs
             def mavenParameters = project.findProperty(MavenParametersUtils.MAVEN_LICENSE_PARAMETERS)
-            if (mavenParameters != null) {
-                LOGGER.info("Maven license parameters: $mavenParameters")
-                licenseArgs = mavenParameters
-                        .toString()
-                        .replaceAll(/^['"]|['"]$/, '')
-                        .plus(" -Dlicense.output.directory=${licensesDirectory.toPath().toAbsolutePath().normalize()}")
-                        .split(" ")
-            } else {
-                LOGGER.warn(("You're using a legacy method for parameter configuration that could be deleted in future. Please wrap all of the parameters in the 'maven-license-parameters'"))
-                def licenseRegistryGitRepository = LicenseGradlePlugin.getLicenseRegistryGitRepository(project)
-                if (licenseRegistryGitRepository == null) {
-                    throw new IllegalArgumentException("Property '${LicenseGradlePlugin.LICENSE_REGISTRY_GIT_REPOSITORY_PROPERTY_NAME}' must be specified")
-                }
-                licenseArgs = [
-                        "-Doctopus-license-maven-plugin.version=${octopusLicenseMavenPluginVersion}",
-                        "-Dlicense.skip=false",
-                        "-Dlicense.includeTransitiveDependencies=false",
-                        "-Dlicense-registry.git-repository=${licenseRegistryGitRepository}",
-                        "-Dlicense.failOnMissing=${(project.findProperty("license-fail-missing") ?: "true")}",
-                        "-Dlicense.failOnBlacklist=${(project.findProperty("license-fail-on-black-list") ?: "true")}",
-                        "-Dlicense.output.directory=${licensesDirectory.toPath().toAbsolutePath().normalize()}",
-                        "-Dlicense.includedDependenciesWhitelist=${(project.findProperty("license-deps-whitelist") ?: "")}",
-                        "-Dlicense.failOnNotWhitelistedDependency=${(project.findProperty("license-fail-on-not-whitelisted-dep") ?: "false")}",
-                        "-Dlicense.fileWhitelist=${LicenseGradlePlugin.getLicenseWhitelistParameter(project)}"
-                ]
+            if (mavenParameters == null) {
+                throw new IllegalArgumentException("Property '${MavenParametersUtils.MAVEN_LICENSE_PARAMETERS}' must be specified")
             }
+            LOGGER.info("Maven license parameters: $mavenParameters")
+            licenseArgs = mavenParameters
+                    .toString()
+                    .replaceAll(/^['"]|['"]$/, '')
+                    .plus(" -Dlicense.output.directory=${licensesDirectory.toPath().toAbsolutePath().normalize()}")
+                    .split(" ")
             def processInstance = LocalProcessBuilderFactory.newLocalProcessBuilder()
                     .command(command)
                     .mapBatExtension()
@@ -235,7 +217,6 @@ class LicenseTask extends DefaultTask {
                     .execute("-f",
                             licensesPom.toPath().toAbsolutePath().normalize(),
                             "-B",
-                            "-Pnexus-staging",
                             *licenseArgs,
                             "generate-resources").toCompletableFuture().get()
             def retCode = processInstance.exitCode
