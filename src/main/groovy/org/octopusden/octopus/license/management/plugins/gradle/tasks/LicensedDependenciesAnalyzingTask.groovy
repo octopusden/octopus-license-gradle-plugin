@@ -22,7 +22,7 @@ class LicensedDependenciesAnalyzingTask extends DefaultTask {
 
     public static final String STRICT_RESOLVER = "strictDependencyResolution"
 
-    private static final String DEFAULT_EXCLUDE_PATTERN = "test.*"
+    private static final String DEFAULT_EXCLUDE_PATTERN = "(test|cyclonedx).*"
     private static final String DEFAULT_INCLUDE_PATTERN = ".*"
 
     @Input
