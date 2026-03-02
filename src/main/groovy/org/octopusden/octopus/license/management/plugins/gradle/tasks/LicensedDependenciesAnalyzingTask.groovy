@@ -77,6 +77,7 @@ class LicensedDependenciesAnalyzingTask extends DefaultTask {
         } else {
             projectsToAnalyze.addAll(project.rootProject.allprojects)
         }
+        def task = this
         projectsToAnalyze.forEach { project$ ->
             def configurationsToAnalyze = new ArrayList(project$.configurations)
             configurationsToAnalyze.forEach { Configuration configuration ->
@@ -124,7 +125,7 @@ class LicensedDependenciesAnalyzingTask extends DefaultTask {
                         resProblemsMessages.append "\nThe '${STRICT_RESOLVER}' mode is set to ${strictDR}\n"
 
                         if (strictDR) {
-                            printFoundProblems(resProblemsMessages)
+                            task.printFoundProblems(resProblemsMessages)
                             throw exception
                         } else {
                             try {
