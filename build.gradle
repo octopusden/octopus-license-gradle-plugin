@@ -12,6 +12,15 @@ group = 'org.octopusden.octopus'
 description 'Octopus module for license gradle plugin'
 
 octopusQuality {
+    // Regression guard on what reaches Maven Central, from octopus-base v2.7.0.
+    publication {
+        enforceCentralPublications.set(true)
+        centralPublications.set([
+            ':|pluginMaven|org.octopusden.octopus:license-gradle-plugin|[jar, jar:javadoc, jar:sources]',
+            ':|LicenseGradlePluginPluginMarkerMaven|' +
+                'org.octopusden.octopus.license-management:org.octopusden.octopus.license-management.gradle.plugin|[]',
+        ] as Set)
+    }
     // No jacoco/kover in this repo — keep coverage verification disabled.
     coverage {
         enabled.set(false)
