@@ -5,10 +5,44 @@ plugins {
     id 'io.github.gradle-nexus.publish-plugin'
     id 'signing'
     id 'com.jfrog.artifactory'
+    id 'org.octopusden.octopus-quality'
 }
 
 group = 'org.octopusden.octopus'
 description 'Octopus module for license gradle plugin'
+
+octopusQuality {
+    // Regression guard on what reaches Maven Central, from octopus-base v2.7.0.
+    publication {
+        enforceCentralPublications.set(true)
+        centralPublications.set([
+            ':|pluginMaven|org.octopusden.octopus:license-gradle-plugin|[jar, jar:javadoc, jar:sources]',
+            ':|LicenseGradlePluginPluginMarkerMaven|' +
+                'org.octopusden.octopus.license-management:org.octopusden.octopus.license-management.gradle.plugin|[]',
+        ] as Set)
+    }
+    // No jacoco/kover in this repo — keep coverage verification disabled.
+    coverage {
+        enabled.set(false)
+    }
+    // Main sources are Groovy + Java, so the convention plugin auto-applies
+    // codenarc (Groovy) and checkstyle/pmd/spotbugs (Java). No Kotlin module
+    // exists in this build, so detekt/ktlint are not wired.
+    //
+    // failOnViolation is left at the convention default (false) for the Java and
+    // Groovy analysers: the convention plugin exposes no baseline mechanism for
+    // checkstyle/pmd/spotbugs/codenarc (only detekt/ktlint have baselines), and the
+    // existing code carries pre-existing debt (134 SpotBugs findings, 11 CodeNarc).
+    // The gate therefore runs every analyser and publishes reports, but does not
+    // fail the build on that legacy debt. Flip these to true once the debt is burned
+    // down. Checkstyle and PMD already pass clean.
+    java {
+        failOnViolation.set(false)
+    }
+    groovy {
+        failOnViolation.set(false)
+    }
+}
 
 repositories {
     mavenCentral()

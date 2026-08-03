@@ -1,0 +1,32 @@
+# PUBLIC — every PR triggers this workflow; the gate/merge check must be green to merge.
+# Fans out to the local reusable build / quality / security workflows and aggregates their
+# results into a single required status check via the octopus-base merge-gate action.
+name: Merge Gate
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    uses: ./.github/workflows/build.yml
+    secrets: inherit
+
+  quality:
+    uses: ./.github/workflows/quality.yml
+    secrets: inherit
+
+  security:
+    uses: ./.github/workflows/security.yml
+    secrets: inherit
+
+  gate-merge:
+    name: gate/merge
+    needs: [ build, quality, security ]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: octopusden/octopus-base/.github/actions/merge-gate@v2.7.0
+        with:
+          needs: ${{ toJson(needs) }}

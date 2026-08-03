@@ -1,0 +1,19 @@
+# PUBLIC — reusable security reports (CodeQL, Trivy). Runs on push to main, weekly, on manual
+# dispatch, and is called by merge-gate.yml on pull requests. Never triggers directly on
+# pull_request.
+name: Security
+
+on:
+  push:
+    branches: [ main ]
+  schedule:
+    - cron: '0 3 * * 1'   # every Monday at 03:00 UTC
+  workflow_call:
+  workflow_dispatch:
+
+jobs:
+  security:
+    uses: octopusden/octopus-base/.github/workflows/common-java-gradle-security-reports.yml@v2.7.0
+    with:
+      java-version: '11'
+    secrets: inherit

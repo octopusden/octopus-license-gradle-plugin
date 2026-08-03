@@ -1,7 +1,12 @@
 pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        mavenCentral()
+    }
     plugins {
         id 'io.github.gradle-nexus.publish-plugin' version settings['gradle-nexus.version'] apply false
         id 'com.jfrog.artifactory' version settings['jfrog-artifactory.version']
+        id 'org.octopusden.octopus-quality' version settings['octopus-quality.version']
     }
 }
 

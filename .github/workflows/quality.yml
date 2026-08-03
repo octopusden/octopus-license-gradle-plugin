@@ -1,0 +1,17 @@
+# PUBLIC — reusable quality gates (qualityStatic + qualityCoverage). Runs on push to main,
+# on manual dispatch, and is called by merge-gate.yml on pull requests. Never triggers
+# directly on pull_request.
+name: Quality
+
+on:
+  push:
+    branches: [ main ]
+  workflow_call:
+  workflow_dispatch:
+
+jobs:
+  quality:
+    uses: octopusden/octopus-base/.github/workflows/common-java-gradle-quality-gates.yml@v2.7.0
+    with:
+      java-version: '11'
+    secrets: inherit
