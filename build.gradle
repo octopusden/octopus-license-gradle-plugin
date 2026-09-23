@@ -6,6 +6,7 @@ plugins {
     id 'signing'
     id 'com.jfrog.artifactory'
     id 'org.octopusden.octopus-quality'
+    id 'org.sonarqube'
 }
 
 group = 'org.octopusden.octopus'
