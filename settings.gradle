@@ -5,7 +5,7 @@ pluginManagement {
     }
     plugins {
         id 'io.github.gradle-nexus.publish-plugin' version settings['gradle-nexus.version'] apply false
-        id 'com.jfrog.artifactory' version settings['jfrog-artifactory.version']
+        id 'com.jfrog.artifactory' version settings['jfrog-artifactory-plugin.version']
         id 'org.octopusden.octopus-quality' version settings['octopus-quality.version']
         id 'org.sonarqube' version settings['sonarqube.version']
     }

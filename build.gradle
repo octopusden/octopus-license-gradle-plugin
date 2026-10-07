@@ -58,6 +58,8 @@ dependencies {
 
     testImplementation "org.junit.jupiter:junit-jupiter-api:${project['junit-jupiter.version']}"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${project['junit-jupiter.version']}"
+    testRuntimeOnly platform("org.junit:junit-bom:${project['junit-jupiter.version']}")
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher"
     testImplementation "org.mockito:mockito-core:${project['mockito-core.version']}"
     testImplementation "org.mockito:mockito-inline:${project['mockito-core.version']}"
 }
@@ -168,6 +170,19 @@ signing {
 
 test {
     useJUnitPlatform()
+}
+
+// Gradle 9 turns on stricter plugin validation for a plugin project with a publishing plugin;
+// keep Gradle 8's level so the published task classes stay as they are.
+tasks.validatePlugins {
+    enableStricterValidation.set(false)
+}
+
+// Gradle 9 bundles Groovy 4, whose bytecode (invokedynamic call sites, FormatHelper) does not load
+// on the Groovy 3 of consumer Gradle 7/8 or the Groovy 2.5 of Gradle 6. Compile the plugin with the
+// Groovy that Gradle 8.10.2 bundled, as before.
+tasks.compileGroovy {
+    groovyClasspath = configurations.detachedConfiguration(dependencies.create('org.codehaus.groovy:groovy:3.0.22'))
 }
 
 project.tasks.findByPath("publish")?.dependsOn(":artifactoryPublish")
